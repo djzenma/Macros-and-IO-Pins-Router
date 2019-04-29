@@ -26,8 +26,8 @@ public class Main extends Application {
     private final String DIEAREA_REGEX = "DIEAREA.+" ;
     private final String SECTION_REGEX = "\\s+.+\\n(.+\\n)+";
     private final String  SITE_REGEX = "SITE\\s+core\\n(.+\\n)+END" ;
-    private final String  OBS_REGEX = "OBS (\n.+)+END";
-    private final String  MACRO_REGEX = "MACRO .+(\n.+)+OBS";
+    //private final String  OBS_REGEX = "OBS (\n.+)+END";
+    private final String  MACRO_REGEX = "MACRO.+(\\n.+)+";
     static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
     public static int[] initialization;
     public static Maze maze = null;
@@ -47,7 +47,7 @@ public class Main extends Application {
         reader.getSection(NETS+SECTION_REGEX, Reader.DEF_EXT);
         reader.getSection(SPECNETS+SECTION_REGEX, Reader.DEF_EXT);
         reader.getSection(SITE_REGEX, Reader.LEF_EXT);
-        reader.getSection(OBS_REGEX, Reader.LEF_EXT);
+       // reader.getSection(OBS_REGEX, Reader.LEF_EXT);
         reader.getSection(MACRO_REGEX, Reader.LEF_EXT);
         
 

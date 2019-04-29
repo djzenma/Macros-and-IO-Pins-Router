@@ -61,24 +61,21 @@ public class Reader {
     }
 
     public List<String> getSection(String section , String ext) 
-    {   List<String> allMatches = new ArrayList<String>();
+    {  
+        List<String> allMatches = new ArrayList<String>();
         Matcher m ;
         if (ext.equals(this.DEF_EXT))
-        { m = Pattern.compile(section).matcher(this.defFile);
-        while (m.find()) 
-        {
-            //System.out.println(m.group());
-            allMatches.add(m.group());
-        }
+        {  
+            m = Pattern.compile(section).matcher(this.defFile);
+            while (m.find()) 
+               allMatches.add(m.group());
         }
         else
         {
-             m = Pattern.compile(section).matcher(this.lefFile);
-             while (m.find()) 
-             {
-                    //System.out.println(m.group());
-                    allMatches.add(m.group());
-             }
+            m = Pattern.compile(section).matcher(this.lefFile);
+            while (m.find()) 
+               allMatches.add(m.group());
+             
         }
         
        for (String x : allMatches)
