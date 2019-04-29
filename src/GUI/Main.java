@@ -23,7 +23,12 @@ public class Main extends Application {
     public static Scanner scanner;
     private Stage stage;
     private Button newCellBtn;
-
+    private final String DIEAREA_REGEX = "DIEAREA.+" ;
+    private final String SECTION_REGEX = "\\s+.+\\n(.+\\n)+";
+    private final String  SITE_REGEX = "SITE\\s+core\\n(.+\\n)+END" ;
+    private final String  OBS_REGEX = "OBS (\n.+)+END";
+    private final String  MACRO_REGEX = "MACRO .+(\n.+)+OBS";
+    static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
     public static int[] initialization;
     public static Maze maze = null;
     public static boolean firstTime = true;
@@ -31,11 +36,20 @@ public class Main extends Application {
 
     @Override
     public void init() throws Exception {
+       
+        
         Reader reader = new Reader();
-        System.out.println(reader.readFile("/Users/Mazen/Desktop/JavaProjects/Router/src/Parser/osu035.lef"));
-        //for (String s: reader.getPINS()) {
-          //  System.out.println(s);
-        //}
+        reader.readFile("/Users/owner/NetBeansProjects/Router/src/Parser/osu035.lef", Reader.LEF_EXT);
+        reader.readFile("/Users/owner/NetBeansProjects/Router/src/Parser/arbiter_unroute.def" , Reader.DEF_EXT);
+        reader.getSection(DIEAREA_REGEX, Reader.DEF_EXT );
+        reader.getSection(PINS+SECTION_REGEX, Reader.DEF_EXT);
+        reader.getSection(COMPONENTS+SECTION_REGEX, Reader.DEF_EXT);
+        reader.getSection(NETS+SECTION_REGEX, Reader.DEF_EXT);
+        reader.getSection(SPECNETS+SECTION_REGEX, Reader.DEF_EXT);
+        reader.getSection(SITE_REGEX, Reader.LEF_EXT);
+        reader.getSection(OBS_REGEX, Reader.LEF_EXT);
+        reader.getSection(MACRO_REGEX, Reader.LEF_EXT);
+        
 
 
         scanner = new Scanner(System.in);
