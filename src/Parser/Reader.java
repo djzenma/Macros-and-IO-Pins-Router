@@ -20,14 +20,13 @@ import java.util.regex.Pattern;
  */
 public class Reader {
     static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
-    private final String REGEX;
-    private String defFile;
+    static public final String DEF_EXT = ".def", LEF_EXT = ".lef" ;
+    private String defFile, lefFile;
 
     public Reader() {
-        this.REGEX = "\\s+.+\\n(.+\\n)+";
     }
     
-    public String readFile(String name) {
+    public String readFile(String name , String ext) {
         String line;
         StringBuilder file = new StringBuilder();
         // FileReader reads text files in the default encoding.
@@ -51,14 +50,25 @@ public class Reader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.defFile = file.toString();
-        return file.toString();
+        if (ext.equals(this.DEF_EXT))
+            this.defFile = file.toString();
+        else
+            this.lefFile = file.toString();
+     
+            return file.toString();
     }
 
-    public String getSection(String section) {
-        Matcher m = Pattern.compile(section + this.REGEX).matcher(this.defFile);
+    public String getSection(String section , String ext) 
+    {
+        Matcher m ;
+        if (ext.equals(this.DEF_EXT))
+             m = Pattern.compile(section).matcher(this.defFile);
+        else
+             m = Pattern.compile(section).matcher(this.lefFile);
+        
         if(m.find())
             System.out.println(m.group());
+        
         return m.group();
     }
 }
