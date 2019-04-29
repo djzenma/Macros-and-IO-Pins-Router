@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -58,17 +60,32 @@ public class Reader {
             return file.toString();
     }
 
-    public String getSection(String section , String ext) 
-    {
+    public List<String> getSection(String section , String ext) 
+    {   List<String> allMatches = new ArrayList<String>();
         Matcher m ;
         if (ext.equals(this.DEF_EXT))
-             m = Pattern.compile(section).matcher(this.defFile);
+        { m = Pattern.compile(section).matcher(this.defFile);
+        while (m.find()) 
+        {
+            //System.out.println(m.group());
+            allMatches.add(m.group());
+        }
+        }
         else
+        {
              m = Pattern.compile(section).matcher(this.lefFile);
+             while (m.find()) 
+             {
+                    //System.out.println(m.group());
+                    allMatches.add(m.group());
+             }
+        }
         
-        if(m.find())
-            System.out.println(m.group());
+       for (String x : allMatches)
+       {
+           System.out.println(x);
+       }
         
-        return m.group();
+        return allMatches;
     }
 }
