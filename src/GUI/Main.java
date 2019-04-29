@@ -2,6 +2,7 @@ package GUI;
 
 import Algorithm.Maze;
 import Algorithm.Utils;
+import Parser.Reader;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -30,6 +31,13 @@ public class Main extends Application {
 
     @Override
     public void init() throws Exception {
+        Reader reader = new Reader();
+        System.out.println(reader.readFile("/Users/Mazen/Desktop/JavaProjects/Router/src/Parser/osu035.lef"));
+        //for (String s: reader.getPINS()) {
+          //  System.out.println(s);
+        //}
+
+
         scanner = new Scanner(System.in);
         controller = new Controller();
         gridContainer = new GridPane();
