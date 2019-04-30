@@ -125,7 +125,38 @@ public class Reader {
             while (m.find()) {
                 allPins.append(m.group());
             }
-            System.out.println("hlo " + allPins.toString().split("PIN")[1]);
+            for (String pin: allPins.toString().split("PIN")) {
+                if(!pin.isEmpty()) {
+                    String pinName =  pin.split("\\n")[0].replaceAll(" ", "");
+                    String port = pin.split("PORT")[1];
+
+                    String rectDimensions = port.split("LAYER.+")[1].replaceAll("(END.+|END\\n|;|\\n)", "").replaceAll("\\s+R", " R");
+                    float x1 = -1000000,x2 = -1000000,y1=-1000000,y2= -1000000;
+                    for (String rect: rectDimensions.split("RECT")) {
+                        if(!rect.isEmpty() && !rect.equals(" ")) {
+                            int count = 0;
+                            for (String vector : rect.split(" ")) {
+                                if(!vector.isEmpty()) {
+                                    float num = Float.parseFloat(vector);
+                                    if(count == 0)
+                                        x1 = num;
+                                    else if(count == 1)
+                                        y1 = num;
+                                    else if(count == 2)
+                                        x2 = num;
+                                    else
+                                        y2 = num;
+                                    count++;
+                                }
+                            }
+                            System.out.println("Coords " + x1 + y1 + x2 + y2);
+                        }
+                    }
+
+
+
+                }
+            }
         });
 
         return macrosSet;
