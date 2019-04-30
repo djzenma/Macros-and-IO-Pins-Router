@@ -47,8 +47,8 @@ public class Main extends Application {
         reader.getSection(SPECNETS+SECTION_REGEX, Reader.DEF_EXT);
         reader.getSection(SITE_REGEX, Reader.LEF_EXT);
        // reader.getSection(OBS_REGEX, Reader.LEF_EXT);
-        reader.getSection(MACRO_REGEX, Reader.LEF_EXT);*/
-       reader.getMacrosWOPins();
+        */
+       reader.getMacrosWPins(reader.getMacrosWOPins());
 
 
 

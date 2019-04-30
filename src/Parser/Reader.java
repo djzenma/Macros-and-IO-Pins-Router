@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -91,9 +92,9 @@ public class Reader {
         return allMatches;
     }
     
-    public Set getMacrosWOPins ()
+    public Hashtable<String, Macro> getMacrosWOPins ()
     {
-       Set <Macro> Macros_Set = new HashSet<Macro>();
+       Hashtable < String , Macro> macrosTable = new Hashtable<>();
        List<String[]> allMatches = new ArrayList<String[]>();
        
        List<String> matches = this.getSection(COMPONENTS+SECTION_REGEX, Reader.DEF_EXT);
@@ -101,25 +102,32 @@ public class Reader {
        String match = matches.get(0);
        String [] comps = match.split("\n");
        
-       for(String component : comps)
-       {
+       for(String component : comps) {
          
                 String[] spaceDelimited = component.split("\\s");
                /*for(String s : spaceDelimited)
                     System.out.println(s);*/
                 if (spaceDelimited.length == 11)
-                Macros_Set.add(new Macro(spaceDelimited[1], new Vector(Integer.parseInt(spaceDelimited[6]), Integer.parseInt(spaceDelimited[7]))));
+                    macrosTable.put(spaceDelimited[1], new Macro(spaceDelimited[1], new Vector(Integer.parseInt(spaceDelimited[6]), Integer.parseInt(spaceDelimited[7]))));
            
        }
-       for(Macro m : Macros_Set) {
-           System.out.println(m);
-       }
        
-       return Macros_Set ;
+       return macrosTable ;
     }
     
-    public Set getMacrosWPins (HashSet<Macro> MacrosSet) {
-        Set <Macro> Macros_Set = new HashSet<Macro>();
-        MacrosSet.get()
+    public Set getMacrosWPins (Hashtable<String , Macro> MacrosTable) {
+        Set <Macro> macrosSet = new HashSet<>();
+
+        List<String> lefMacros = this.getSection(MACRO_REGEX, Reader.LEF_EXT);
+        lefMacros.forEach(s -> {
+            StringBuilder allPins = new StringBuilder();
+            Matcher m = Pattern.compile("PIN\\s.+\\n(.+\\n)+\\s+END\\s+.+\\n").matcher(s);
+            while (m.find()) {
+                allPins.append(m.group());
+            }
+            System.out.println("hlo " + allPins.toString().split("PIN")[1]);
+        });
+
+        return macrosSet;
     }
 }
