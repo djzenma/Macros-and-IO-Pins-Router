@@ -11,6 +11,8 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 
@@ -29,6 +31,7 @@ public class Main extends Application {
     //private final String  OBS_REGEX = "OBS (\n.+)+END";
     private final String  MACRO_REGEX = "MACRO.+(\\n.+)+";
     static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
+
     public static int[] initialization;
     public static Maze maze = null;
     public static boolean firstTime = true;
@@ -37,10 +40,14 @@ public class Main extends Application {
     @Override
     public void init() throws Exception {
        
+        Path path = Paths.get(".");        // Gets the project's absolute path
+        String absolutePath = path.toAbsolutePath().toString();
+        absolutePath = absolutePath.substring(0, absolutePath.length() -1) + "/src";
         
         Reader reader = new Reader();
-        reader.readFile("/Users/owner/NetBeansProjects/Router/src/Parser/osu035.lef", Reader.LEF_EXT);
-        reader.readFile("/Users/owner/NetBeansProjects/Router/src/Parser/arbiter_unroute.def" , Reader.DEF_EXT);
+        reader.readFile(absolutePath + "/Parser/osu035.lef", Reader.LEF_EXT);
+        reader.readFile(absolutePath + "/Parser/arbiter_unroute.def" , Reader.DEF_EXT);
+
         reader.getSection(DIEAREA_REGEX, Reader.DEF_EXT );
         reader.getSection(PINS+SECTION_REGEX, Reader.DEF_EXT);
         reader.getSection(COMPONENTS+SECTION_REGEX, Reader.DEF_EXT);
@@ -49,7 +56,7 @@ public class Main extends Application {
         reader.getSection(SITE_REGEX, Reader.LEF_EXT);
        // reader.getSection(OBS_REGEX, Reader.LEF_EXT);
         reader.getSection(MACRO_REGEX, Reader.LEF_EXT);
-        
+
 
 
         scanner = new Scanner(System.in);

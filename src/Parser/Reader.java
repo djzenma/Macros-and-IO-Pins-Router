@@ -57,31 +57,26 @@ public class Reader {
         else
             this.lefFile = file.toString();
      
-            return file.toString();
+        return file.toString();
     }
 
-    public List<String> getSection(String section , String ext) 
-    {  
+    public List<String> getSection(String section , String ext) {
         List<String> allMatches = new ArrayList<String>();
+        String file;
         Matcher m ;
-        if (ext.equals(this.DEF_EXT))
-        {  
-            m = Pattern.compile(section).matcher(this.defFile);
-            while (m.find()) 
-               allMatches.add(m.group());
-        }
+
+        if (ext.equals(DEF_EXT))
+            file = this.defFile;
         else
-        {
-            m = Pattern.compile(section).matcher(this.lefFile);
-            while (m.find()) 
-               allMatches.add(m.group());
-             
+            file = this.lefFile;
+
+        m = Pattern.compile(section).matcher(file);
+        while (m.find())
+            allMatches.add(m.group());
+
+        for (String x : allMatches) {
+            System.out.println(x);
         }
-        
-       for (String x : allMatches)
-       {
-           System.out.println(x);
-       }
         
         return allMatches;
     }
