@@ -10,7 +10,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -21,9 +24,15 @@ import java.util.regex.Pattern;
  * @author owner
  */
 public class Reader {
-    static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
     static public final String DEF_EXT = ".def", LEF_EXT = ".lef" ;
     private String defFile, lefFile;
+    private final String DIEAREA_REGEX = "DIEAREA.+" ;
+    private final String SECTION_REGEX = "\\s+.+\\n(.+\\n)+";
+    private final String  SITE_REGEX = "SITE\\s+core\\n(.+\\n)+END" ;
+    //private final String  OBS_REGEX = "OBS (\n.+)+END";
+    private final String  MACRO_REGEX = "MACRO.+(\\n.+)+";
+    static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
+    
 
     public Reader() {
     }
@@ -60,7 +69,8 @@ public class Reader {
         return file.toString();
     }
 
-    public List<String> getSection(String section , String ext) {
+    public List<String> getSection(String section , String ext)
+    {
         List<String> allMatches = new ArrayList<String>();
         String file;
         Matcher m ;
@@ -74,10 +84,42 @@ public class Reader {
         while (m.find())
             allMatches.add(m.group());
 
-        for (String x : allMatches) {
+       /* for (String x : allMatches) {
             System.out.println(x);
-        }
+        }*/
         
         return allMatches;
+    }
+    
+    public Set getMacrosWOPins ()
+    {
+       Set <Macro> Macros_Set = new HashSet<Macro>();
+       List<String[]> allMatches = new ArrayList<String[]>();
+       
+       List<String> matches = this.getSection(COMPONENTS+SECTION_REGEX, Reader.DEF_EXT);
+       
+       String match = matches.get(0);
+       String [] comps = match.split("\n");
+       
+       for(String component : comps)
+       {
+         
+                String[] spaceDelimited = component.split("\\s");
+               /*for(String s : spaceDelimited)
+                    System.out.println(s);*/
+                if (spaceDelimited.length == 11)
+                Macros_Set.add(new Macro(spaceDelimited[1], new Vector(Integer.parseInt(spaceDelimited[6]), Integer.parseInt(spaceDelimited[7]))));
+           
+       }
+       for(Macro m : Macros_Set) {
+           System.out.println(m);
+       }
+       
+       return Macros_Set ;
+    }
+    
+    public Set getMacrosWPins (HashSet<Macro> MacrosSet) {
+        Set <Macro> Macros_Set = new HashSet<Macro>();
+        MacrosSet.get()
     }
 }
