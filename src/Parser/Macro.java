@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 public class Macro {
     
-   Vector location ;
-   String name ;
-   ArrayList <Pin> pins ;
+   Vector location;
+   String name;
+   ArrayList <Pin> pins;
    
    Macro(String name, Vector location, ArrayList <Pin> pins) {
        this.name = name;

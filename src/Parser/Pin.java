@@ -1,14 +1,16 @@
 
 package Parser;
+
+import java.util.List;
+
 public class Pin {
-    Vector location ;
+    List<Rect> rectList ;
     String name ;
-    Vector size ;
-    Pin (Vector location , String name , Vector size)
+
+    Pin (List<Rect> rectList , String name)
     {
-        this.location = location ;
+        this.rectList = rectList;
         this.name = name ;
-        this.size = size ;
     }
     
 }

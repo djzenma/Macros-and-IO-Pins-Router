@@ -20,10 +20,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- *
- * @author owner
- */
+
 public class Reader {
     static public final String DEF_EXT = ".def", LEF_EXT = ".lef" ;
     private String defFile, lefFile;
@@ -70,8 +67,7 @@ public class Reader {
         return file.toString();
     }
 
-    public List<String> getSection(String section , String ext)
-    {
+    public List<String> getSection(String section , String ext) {
         List<String> allMatches = new ArrayList<String>();
         String file;
         Matcher m ;
@@ -91,12 +87,13 @@ public class Reader {
         
         return allMatches;
     }
-    
-    public Hashtable<String, Macro> getMacrosWOPins ()
-    {
+
+    /*
+     *  @return Hash Table with all the MACROS placed from the DEF File
+     */
+    public Hashtable<String, Macro> getPlacedMacros() {
        Hashtable < String , Macro> macrosTable = new Hashtable<>();
-       List<String[]> allMatches = new ArrayList<String[]>();
-       
+
        List<String> matches = this.getSection(COMPONENTS+SECTION_REGEX, Reader.DEF_EXT);
        
        String match = matches.get(0);
@@ -105,39 +102,52 @@ public class Reader {
        for(String component : comps) {
          
                 String[] spaceDelimited = component.split("\\s");
-               /*for(String s : spaceDelimited)
-                    System.out.println(s);*/
                 if (spaceDelimited.length == 11)
-                    macrosTable.put(spaceDelimited[1], new Macro(spaceDelimited[1], new Vector(Integer.parseInt(spaceDelimited[6]), Integer.parseInt(spaceDelimited[7]))));
+                    macrosTable.put(spaceDelimited[1], new Macro(spaceDelimited[2], new Vector(Integer.parseInt(spaceDelimited[6]), Integer.parseInt(spaceDelimited[7]))));
            
        }
        
        return macrosTable ;
     }
-    
-    public Set getMacrosWPins (Hashtable<String , Macro> MacrosTable) {
+
+    /*
+     *  @return Set with all the Library MACROS defined in the LEF File
+     */
+    public Set getMacrosSet() {
         Set <Macro> macrosSet = new HashSet<>();
 
-        List<String> lefMacros = this.getSection(MACRO_REGEX, Reader.LEF_EXT);
+        List<String> lefMacros = this.getSection(MACRO_REGEX, Reader.LEF_EXT);  // All Macros
+        // Iterate over all Macros
         lefMacros.forEach(s -> {
+            // Extract Macro Name
+            String macroName;
+            macroName = regexMatcher("MACRO.+", s).get(0).replaceAll("(MACRO|\\s+)", "");
+            System.out.println(macroName);
+
+            // Extract All the Pins block of each Macro
             StringBuilder allPins = new StringBuilder();
-            Matcher m = Pattern.compile("PIN\\s.+\\n(.+\\n)+\\s+END\\s+.+\\n").matcher(s);
-            while (m.find()) {
-                allPins.append(m.group());
-            }
+            regexMatcher("PIN\\s.+\\n(.+\\n)+\\s+END\\s+.+\\n", s).forEach(allPins::append);
+
+            // Extract Each Pins separately from the PINS Block
+            ArrayList<Pin> macroPins = new ArrayList<>();
             for (String pin: allPins.toString().split("PIN")) {
                 if(!pin.isEmpty()) {
+                    List<Rect> pinRects = new ArrayList<>();
+
                     String pinName =  pin.split("\\n")[0].replaceAll(" ", "");
+                    // Get the Port of the individual Pin
                     String port = pin.split("PORT")[1];
 
+                    // Get the rectangles of the port
                     String rectDimensions = port.split("LAYER.+")[1].replaceAll("(END.+|END\\n|;|\\n)", "").replaceAll("\\s+R", " R");
+
                     float x1 = -1000000,x2 = -1000000,y1=-1000000,y2= -1000000;
                     for (String rect: rectDimensions.split("RECT")) {
                         if(!rect.isEmpty() && !rect.equals(" ")) {
                             int count = 0;
-                            for (String vector : rect.split(" ")) {
-                                if(!vector.isEmpty()) {
-                                    float num = Float.parseFloat(vector);
+                            for (String coord : rect.split(" ")) {
+                                if(!coord.isEmpty()) {
+                                    float num = Float.parseFloat(coord);
                                     if(count == 0)
                                         x1 = num;
                                     else if(count == 1)
@@ -148,17 +158,29 @@ public class Reader {
                                         y2 = num;
                                     count++;
                                 }
-                            }
+                            } // End of Each coordinate in a Rect loop
                             System.out.println("Coords " + x1 + y1 + x2 + y2);
+                            pinRects.add(new Rect(new Vector(x1, y1), new Vector(x2, y2)));
                         }
-                    }
-
-
-
+                    } // End of Each Rect in a Port loop
+                    macroPins.add(new Pin(pinRects, pinName));
                 }
-            }
+
+            } // End Each Pin Loop
+            macrosSet.add(new Macro(macroName, new Vector(0,0,0), macroPins));
         });
 
         return macrosSet;
     }
+
+
+    private List<String> regexMatcher(String regex, String matcher) {
+        List<String> matches = new ArrayList<>();
+        Matcher m = Pattern.compile(regex).matcher(matcher);
+        while(m.find())
+            matches.add(m.group());
+
+        return matches;
+    }
+
 }

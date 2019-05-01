@@ -2,18 +2,15 @@ package Parser;
 
 
 public class Vector {
-    int x ;
-    int y ;
-    int z ;
-    Vector (int x , int y , int z)
-    {
+    float x, y, z;
+
+    Vector (float x , float y , float z) {
         this.x = x ;
         this.y = y ;
         this.z = z ;
     }
     
-    Vector (int x , int y )
-    {
+    Vector (float x , float y ) {
         this.x = x ;
         this.y = y ;
     }

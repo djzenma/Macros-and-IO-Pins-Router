@@ -2,6 +2,7 @@ package GUI;
 
 import Algorithm.Maze;
 import Algorithm.Utils;
+import Parser.Macro;
 import Parser.Reader;
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -13,7 +14,10 @@ import javafx.scene.layout.GridPane;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Scanner;
+import java.util.Set;
 
 
 /**
@@ -48,7 +52,8 @@ public class Main extends Application {
         reader.getSection(SITE_REGEX, Reader.LEF_EXT);
        // reader.getSection(OBS_REGEX, Reader.LEF_EXT);
         */
-       reader.getMacrosWPins(reader.getMacrosWOPins());
+        Set<Macro> macrosSet = reader.getMacrosSet();
+        Hashtable<String,Macro> macrosTable = reader.getPlacedMacros();
 
 
 
