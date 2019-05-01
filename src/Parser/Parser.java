@@ -9,19 +9,20 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class Reader {
+public class Parser {
     static public final String DEF_EXT = ".def", LEF_EXT = ".lef" ;
     private String defFile, lefFile;
     private final String DIEAREA_REGEX = "DIEAREA.+" ;
@@ -32,7 +33,12 @@ public class Reader {
     static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
     
 
-    public Reader() {
+    public Parser() {
+        Path path = Paths.get(".");        // Gets the project's absolute path
+        String absolutePath = path.toAbsolutePath().toString();
+        absolutePath = absolutePath.substring(0, absolutePath.length() -1) + "/src";
+        readFile(absolutePath + "/Parser/Resources/osu035.lef", Parser.LEF_EXT);
+        readFile(absolutePath + "/Parser/Resources/arbiter_unroute.def", Parser.DEF_EXT);
     }
     
     public String readFile(String name , String ext) {
@@ -43,7 +49,7 @@ public class Reader {
         try {
             fileReader = new FileReader(name);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Parser.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         // Always wrap FileReader in BufferedReader.
@@ -88,13 +94,25 @@ public class Reader {
         return allMatches;
     }
 
+    public Hashtable<String, String> getMetalLayersTable() {
+        String direction, name;
+        Hashtable<String,String> layersTable = new Hashtable<>();
+        List<String> layersBlocks = regexMatcher("LAYER.+\\n\\s+TYPE\\s+ROUTING.+\\n\\s+DIRECTION.+", this.lefFile);
+        for (String layerBlock : layersBlocks) {
+            name = regexMatcher("LAYER.+", layerBlock).get(0).replaceAll("(LAYER|\\s+|;)", "");
+            direction = regexMatcher("DIRECTION.+", layerBlock).get(0).replaceAll("(DIRECTION|\\s+|;)", "");
+            layersTable.put(name,direction);
+        }
+        return layersTable;
+    }
+
     /*
      *  @return Hash Table with all the MACROS placed from the DEF File
      */
     public Hashtable<String, Macro> getPlacedMacros() {
        Hashtable < String , Macro> macrosTable = new Hashtable<>();
 
-       List<String> matches = this.getSection(COMPONENTS+SECTION_REGEX, Reader.DEF_EXT);
+       List<String> matches = this.getSection(COMPONENTS+SECTION_REGEX, Parser.DEF_EXT);
        
        String match = matches.get(0);
        String [] comps = match.split("\n");
@@ -116,7 +134,7 @@ public class Reader {
     public Set getMacrosSet() {
         Set <Macro> macrosSet = new HashSet<>();
 
-        List<String> lefMacros = this.getSection(MACRO_REGEX, Reader.LEF_EXT);  // All Macros
+        List<String> lefMacros = this.getSection(MACRO_REGEX, Parser.LEF_EXT);  // All Macros
         // Iterate over all Macros
         lefMacros.forEach(s -> {
             // Extract Macro Name
@@ -130,7 +148,7 @@ public class Reader {
 
             // Extract Each Pins separately from the PINS Block
             ArrayList<Pin> macroPins = new ArrayList<>();
-            for (String pin: allPins.toString().split("PIN")) {
+            for (String pin: allPins.toString().split("PIN")) { // Pins Loop
                 if(!pin.isEmpty()) {
                     List<Rect> pinRects = new ArrayList<>();
 
@@ -138,11 +156,14 @@ public class Reader {
                     // Get the Port of the individual Pin
                     String port = pin.split("PORT")[1];
 
+                    // Get Metal Layer
+                    String metalNum = regexMatcher("\\d+", regexMatcher("LAYER.+", pin).get(0).replaceAll("(LAYER|\\s+|;)", "")).get(0);
+
                     // Get the rectangles of the port
                     String rectDimensions = port.split("LAYER.+")[1].replaceAll("(END.+|END\\n|;|\\n)", "").replaceAll("\\s+R", " R");
 
                     float x1 = -1000000,x2 = -1000000,y1=-1000000,y2= -1000000;
-                    for (String rect: rectDimensions.split("RECT")) {
+                    for (String rect: rectDimensions.split("RECT")) {   // Rects Loop
                         if(!rect.isEmpty() && !rect.equals(" ")) {
                             int count = 0;
                             for (String coord : rect.split(" ")) {
@@ -159,13 +180,11 @@ public class Reader {
                                     count++;
                                 }
                             } // End of Each coordinate in a Rect loop
-                            System.out.println("Coords " + x1 + y1 + x2 + y2);
-                            pinRects.add(new Rect(new Vector(x1, y1), new Vector(x2, y2)));
+                            pinRects.add(new Rect(new Vector(x1, y1, Float.parseFloat(metalNum)), new Vector(x2, y2, Float.parseFloat(metalNum))));
                         }
                     } // End of Each Rect in a Port loop
                     macroPins.add(new Pin(pinRects, pinName));
                 }
-
             } // End Each Pin Loop
             macrosSet.add(new Macro(macroName, new Vector(0,0,0), macroPins));
         });

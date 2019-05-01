@@ -1,0 +1,7 @@
+A
+    DIRECTION INPUT ;
+    PORT
+      LAYER metal1 ;
+        RECT 0.400 6.600 1.200 8.200 ;
+    END
+  END A

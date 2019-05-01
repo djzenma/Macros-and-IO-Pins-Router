@@ -3,7 +3,7 @@ package GUI;
 import Algorithm.Maze;
 import Algorithm.Utils;
 import Parser.Macro;
-import Parser.Reader;
+import Parser.Parser;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,7 +14,6 @@ import javafx.scene.layout.GridPane;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
@@ -36,24 +35,17 @@ public class Main extends Application {
 
     @Override
     public void init() throws Exception {
-       
-        Path path = Paths.get(".");        // Gets the project's absolute path
-        String absolutePath = path.toAbsolutePath().toString();
-        absolutePath = absolutePath.substring(0, absolutePath.length() -1) + "/src";
-        
-        Reader reader = new Reader();
-        reader.readFile(absolutePath + "/Parser/osu035.lef", Reader.LEF_EXT);
-        reader.readFile(absolutePath + "/Parser/arbiter_unroute.def" , Reader.DEF_EXT);
-
-        /*reader.getSection(DIEAREA_REGEX, Reader.DEF_EXT );
-        reader.getSection(PINS+SECTION_REGEX, Reader.DEF_EXT);
-        reader.getSection(NETS+SECTION_REGEX, Reader.DEF_EXT);
-        reader.getSection(SPECNETS+SECTION_REGEX, Reader.DEF_EXT);
-        reader.getSection(SITE_REGEX, Reader.LEF_EXT);
-       // reader.getSection(OBS_REGEX, Reader.LEF_EXT);
+        /*parser.getSection(DIEAREA_REGEX, Parser.DEF_EXT );
+        parser.getSection(PINS+SECTION_REGEX, Parser.DEF_EXT);
+        parser.getSection(NETS+SECTION_REGEX, Parser.DEF_EXT);
+        parser.getSection(SPECNETS+SECTION_REGEX, Parser.DEF_EXT);
+        parser.getSection(SITE_REGEX, Parser.LEF_EXT);
+       // parser.getSection(OBS_REGEX, Parser.LEF_EXT);
         */
-        Set<Macro> macrosSet = reader.getMacrosSet();
-        Hashtable<String,Macro> macrosTable = reader.getPlacedMacros();
+        Parser parser = new Parser();
+        Hashtable<String,String> layersTable = parser.getMetalLayersTable();
+        Hashtable<String,Macro> macrosTable = parser.getPlacedMacros();
+        Set<Macro> macrosSet = parser.getMacrosSet();
 
 
 
