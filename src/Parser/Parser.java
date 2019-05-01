@@ -31,7 +31,7 @@ public class Parser {
     //private final String  OBS_REGEX = "OBS (\n.+)+END";
     private final String  MACRO_REGEX = "MACRO.+(\\n.+)+";
     static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
-    
+
 
     public Parser() {
         Path path = Paths.get(".");        // Gets the project's absolute path
@@ -40,7 +40,7 @@ public class Parser {
         readFile(absolutePath + "/Parser/Resources/osu035.lef", Parser.LEF_EXT);
         readFile(absolutePath + "/Parser/Resources/arbiter_unroute.def", Parser.DEF_EXT);
     }
-    
+
     public String readFile(String name , String ext) {
         String line;
         StringBuilder file = new StringBuilder();
@@ -70,7 +70,7 @@ public class Parser {
             this.defFile = file.toString();
         else
             this.lefFile = file.toString();
-     
+
         return file.toString();
     }
 
@@ -87,7 +87,7 @@ public class Parser {
         m = Pattern.compile(section).matcher(file);
         while (m.find())
             allMatches.add(m.group());
-        
+
         return allMatches;
     }
 
@@ -128,18 +128,18 @@ public class Parser {
        Hashtable < String , Macro> macrosTable = new Hashtable<>();
 
        List<String> matches = this.getSection(COMPONENTS+SECTION_REGEX, Parser.DEF_EXT);
-       
+
        String match = matches.get(0);
        String [] comps = match.split("\n");
-       
+
        for(String component : comps) {
-         
+
                 String[] spaceDelimited = component.split("\\s");
                 if (spaceDelimited.length == 11)
                     macrosTable.put(spaceDelimited[1], new Macro(spaceDelimited[2], new Vector(Integer.parseInt(spaceDelimited[6]), Integer.parseInt(spaceDelimited[7]))));
-           
+
        }
-       
+
        return macrosTable ;
     }
 
@@ -160,61 +160,78 @@ public class Parser {
             // Extract All the Pins block of each Macro
             StringBuilder allPins = new StringBuilder();
             regexMatcher("PIN\\s.+\\n(.+\\n)+\\s+END\\s+.+\\n", s).forEach(allPins::append);
+            ArrayList<Pin> macroPins = getPins(allPins, layersSet);
+            List<Rect> obs = getObs(s, layersSet);
 
-            // Extract Each Pins separately from the PINS Block
-            ArrayList<Pin> macroPins = new ArrayList<>();
-            for (String pin: allPins.toString().split("PIN")) { // Pins Loop
-                if(!pin.isEmpty()) {
-                    List<Rect> pinRects = new ArrayList<>();
-
-                    String pinName =  pin.split("\\n")[0].replaceAll(" ", "");
-                    // Get the Port of the individual Pin
-                    String port = pin.split("PORT")[1];
-
-
-                    // Get each layer with its rectangles
-                    List<String> layers = regexMatcher("LAYER.+\\n(\\s+RECT.+)+",port);
-
-                    // Get the rectangles of the port
-                    //String rectDimensions = port.split("LAYER.+")[1].replaceAll("(END.+|END\\n|;|\\n)", "").replaceAll("\\s+R", " R");
-
-                    for (String layer : layers) {
-                        // Get Layer
-                        String layerName = regexMatcher("LAYER.+", layer).get(0).replaceAll("(LAYER|\\s+|;)", "");
-                        double layerNum = layersSet.get(layerName).getLayer();
-
-                        // Get the rectangles of the layer
-                        String rectDimensions = layer.split("LAYER.+")[1].replaceAll("(END.+|END\\n|;|\\n)", "").replaceAll("\\s+R", " R");
-
-                        double x1 = -1000000,x2 = -1000000,y1=-1000000,y2= -1000000;
-                        for (String rect: rectDimensions.split("RECT")) {   // Rects Loop
-                            if(!rect.isEmpty() && !rect.equals(" ")) {
-                                int count = 0;
-                                for (String coord : rect.split(" ")) {
-                                    if(!coord.isEmpty()) {
-                                        double num = Double.parseDouble(coord);
-                                        if(count == 0)
-                                            x1 = num;
-                                        else if(count == 1)
-                                            y1 = num;
-                                        else if(count == 2)
-                                            x2 = num;
-                                        else
-                                            y2 = num;
-                                        count++;
-                                    }
-                                } // End of Each coordinate in a Rect loop
-                                pinRects.add(new Rect(new Vector(x1, y1, layerNum), new Vector(x2, y2, layerNum)));
-                            }
-                        } // End of Each Rect in a Port loop
-                    }
-                    macroPins.add(new Pin(pinRects, pinName));
-                }
-            } // End Each Pin Loop
-            macrosSet.add(new Macro(macroName, new Vector(0,0,0), macroPins));
+            macrosSet.add(new Macro(macroName, new Vector(0,0,0), macroPins, obs));
         });
 
         return macrosSet;
+    }
+
+    private ArrayList<Pin> getPins(StringBuilder allPins, Hashtable<String, Layer> layersSet) {
+        // Extract Each Pins separately from the PINS Block
+        ArrayList<Pin> macroPins = new ArrayList<>();
+
+        for (String pin: allPins.toString().split("PIN")) { // Pins Loop
+            if (!pin.isEmpty()) {
+                String pinName = pin.split("\\n")[0].replaceAll(" ", "");
+                // Get the Port of the individual Pin
+                String port = pin.split("PORT")[1];
+
+                macroPins.add(new Pin(getRects(port, layersSet), pinName));
+            }
+        }
+        return macroPins;
+    }
+
+
+    private List<Rect> getRects(String port, Hashtable<String, Layer> layersSet){
+        // Get each layer with its rectangles
+        List<String> layers = regexMatcher("LAYER.+\\n(\\s+RECT.+)+", port);
+        List<Rect> pinRects = new ArrayList<>();
+
+        for (String layer : layers) {
+            // Get Layer
+            String layerName = regexMatcher("LAYER.+", layer).get(0).replaceAll("(LAYER|\\s+|;)", "");
+            double layerNum = layersSet.get(layerName).getLayer();
+
+            // Get the rectangles of the layer
+            String rectDimensions = layer.split("LAYER.+")[1].replaceAll("(END.+|END\\n|;|\\n)", "").replaceAll("\\s+R", " R");
+
+            double x1 = -1000000, x2 = -1000000, y1 = -1000000, y2 = -1000000;
+            for (String rect : rectDimensions.split("RECT")) {   // Rects Loop
+                if (!rect.isEmpty() && !rect.equals(" ")) {
+                    int count = 0;
+                    for (String coord : rect.split(" ")) {
+                        if (!coord.isEmpty()) {
+                            double num = Double.parseDouble(coord);
+                            if (count == 0)
+                                x1 = num;
+                            else if (count == 1)
+                                y1 = num;
+                            else if (count == 2)
+                                x2 = num;
+                            else
+                                y2 = num;
+                            count++;
+                        }
+                    } // End of Each coordinate in a Rect loop
+                    pinRects.add(new Rect(new Vector(x1, y1, layerNum), new Vector(x2, y2, layerNum)));
+                }
+            } // End of Each Rect in a Port loop
+        }
+
+        return pinRects;
+    }
+
+
+    private List<Rect> getObs(String macroBlock, Hashtable<String, Layer> layersSet) {
+        if(macroBlock.contains("OBS")) {
+            String obsBlock = regexMatcher("OBS\\s+.+\\n(.+\\n)+END", macroBlock).get(0);
+            return getRects(obsBlock, layersSet);
+        }
+        return new ArrayList<Rect>();
     }
 
 
@@ -226,7 +243,7 @@ public class Parser {
 
         return matches;
     }
-    
+
     public Rect getDieArea ()
     {
         String die;
@@ -237,7 +254,7 @@ public class Parser {
             if(!s.isEmpty() && !s.equals(" "))
                 coordList.add(s);
         }
-        
+
         Rect die_area = new Rect(new Vector(Double.parseDouble(coordList.get(0)), Double.parseDouble(coordList.get(1)),0) , new Vector (Double.parseDouble(coordList.get(2)), Double.parseDouble(coordList.get(3)),0));
         return die_area ;
     }
@@ -248,7 +265,7 @@ public class Parser {
         site = regexMatcher(SITE_REGEX, this.lefFile ).get(0);
         String[] coords = site.split("SIZE");
         coords = coords[1].split("\\t+")[1].split("\\s");
-        
+
         return new Vector(Double.parseDouble(coords[0]), Double.parseDouble(coords[2])) ;
     }
 
