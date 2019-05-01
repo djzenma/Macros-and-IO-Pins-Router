@@ -251,12 +251,25 @@ public class Parser {
         
         return new Vector(Double.parseDouble(coords[0]), Double.parseDouble(coords[2])) ;
     }
-     public HashSet <HashSet <String>> getNets ()
-     {
-         HashSet <HashSet <String>> nets = new HashSet <HashSet <String>> ();
-         List <String> site;
-         site = regexMatcher(NETS+SECTION_REGEX, this.defFile );
-          
-         return nets ;
-     }
+
+     public HashSet <Net> getNets () {
+        HashSet <Net> nets = new HashSet <> ();
+        List <String> netsList;
+
+        netsList = regexMatcher(NETS+SECTION_REGEX, this.defFile );
+        String [] netsBlockArray = netsList.get(0).split("-");
+
+        for (int i = 1 ; i < netsBlockArray.length; i++) { //loop at nets
+            String[] netBlock = netsBlockArray[i].split("\n"); // split at end lines
+            Net net = new Net();
+            for (int j = 1; j < netBlock.length; j++) { //loop at lines
+                if (!(i==  netsBlockArray.length-1 && j ==  netBlock.length-1) ){
+                    String[] netLine = netBlock[j].replaceAll("(\\(|\\))", "").split("\\s");
+                    net.insertPin(netLine[3], netLine[4]);
+                }
+            }
+            nets.add(net);
+        }
+         return nets;
+    }
 }

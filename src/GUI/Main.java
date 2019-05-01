@@ -8,6 +8,7 @@ import Parser.Parser;
 import Parser.Layer;
 import Parser.Rect;
 import Parser.Vector;
+import Parser.Net;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -17,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
@@ -48,7 +50,7 @@ public class Main extends Application {
         Set<Macro> macrosSet = parser.getMacrosSet(layersTable);
         Rect area = parser.getDieArea();
         Vector coreSite = parser.getCoreSite();
-
+        HashSet<Net> netsSet = parser.getNets() ;
 
         scanner = new Scanner(System.in);
         controller = new Controller();
