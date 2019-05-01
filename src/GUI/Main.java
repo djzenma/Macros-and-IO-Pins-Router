@@ -2,8 +2,11 @@ package GUI;
 
 import Algorithm.Maze;
 import Algorithm.Utils;
+
 import Parser.Macro;
 import Parser.Parser;
+import Parser.Layer;
+
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,8 +15,6 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
@@ -43,9 +44,9 @@ public class Main extends Application {
        // parser.getSection(OBS_REGEX, Parser.LEF_EXT);
         */
         Parser parser = new Parser();
-        Hashtable<String,String> layersTable = parser.getMetalLayersTable();
+        Hashtable<String, Layer> layersTable = parser.getLayersTable();
         Hashtable<String,Macro> macrosTable = parser.getPlacedMacros();
-        Set<Macro> macrosSet = parser.getMacrosSet();
+        Set<Macro> macrosSet = parser.getMacrosSet(layersTable);
 
 
 

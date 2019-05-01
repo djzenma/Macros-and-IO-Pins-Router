@@ -53,6 +53,7 @@ public class Parser {
         }
 
         // Always wrap FileReader in BufferedReader.
+        assert fileReader != null;
         BufferedReader bufferedReader =
             new BufferedReader(fileReader);
 
@@ -65,7 +66,7 @@ public class Parser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (ext.equals(this.DEF_EXT))
+        if (ext.equals(DEF_EXT))
             this.defFile = file.toString();
         else
             this.lefFile = file.toString();
@@ -86,23 +87,37 @@ public class Parser {
         m = Pattern.compile(section).matcher(file);
         while (m.find())
             allMatches.add(m.group());
-
-       /* for (String x : allMatches) {
-            System.out.println(x);
-        }*/
         
         return allMatches;
     }
 
-    public Hashtable<String, String> getMetalLayersTable() {
-        String direction, name;
-        Hashtable<String,String> layersTable = new Hashtable<>();
-        List<String> layersBlocks = regexMatcher("LAYER.+\\n\\s+TYPE\\s+ROUTING.+\\n\\s+DIRECTION.+", this.lefFile);
-        for (String layerBlock : layersBlocks) {
+    public Hashtable<String, Layer> getLayersTable() {
+        String metalDirection, name;
+        float num;
+
+        Hashtable<String, Layer> layersTable = new Hashtable<>();
+
+        List<String> metalLayersBlocks = regexMatcher("LAYER.+\\n\\s+TYPE\\s+ROUTING.+\\n\\s+DIRECTION.+", this.lefFile);
+        for (String layerBlock : metalLayersBlocks) {
             name = regexMatcher("LAYER.+", layerBlock).get(0).replaceAll("(LAYER|\\s+|;)", "");
-            direction = regexMatcher("DIRECTION.+", layerBlock).get(0).replaceAll("(DIRECTION|\\s+|;)", "");
-            layersTable.put(name,direction);
+            metalDirection = regexMatcher("DIRECTION.+", layerBlock).get(0).replaceAll("(DIRECTION|\\s+|;)", "");
+            num = Float.parseFloat(regexMatcher("\\d+", layerBlock).get(0));
+
+            layersTable.put(name,new Layer(name, metalDirection, num));
         }
+
+        List<String> viaLayersBlocks = regexMatcher("LAYER.+\\n\\s+TYPE\\s+CUT.+", this.lefFile);
+        for (String layerBlock : viaLayersBlocks) {
+            name = regexMatcher("LAYER.+", layerBlock).get(0).replaceAll("(LAYER|\\s+|;)", "");
+            if(!regexMatcher("\\d+", layerBlock).isEmpty()) {
+                num = Float.parseFloat(regexMatcher("\\d+", layerBlock).get(0));
+                layersTable.put(name,new Layer(name, num));
+            }
+            else
+                layersTable.put(name,new Layer(name));
+
+        }
+
         return layersTable;
     }
 
@@ -131,7 +146,7 @@ public class Parser {
     /*
      *  @return Set with all the Library MACROS defined in the LEF File
      */
-    public Set getMacrosSet() {
+    public Set getMacrosSet(Hashtable<String, Layer> layersSet) {
         Set <Macro> macrosSet = new HashSet<>();
 
         List<String> lefMacros = this.getSection(MACRO_REGEX, Parser.LEF_EXT);  // All Macros
@@ -156,33 +171,43 @@ public class Parser {
                     // Get the Port of the individual Pin
                     String port = pin.split("PORT")[1];
 
-                    // Get Metal Layer
-                    String metalNum = regexMatcher("\\d+", regexMatcher("LAYER.+", pin).get(0).replaceAll("(LAYER|\\s+|;)", "")).get(0);
+
+                    // Get each layer with its rectangles
+                    List<String> layers = regexMatcher("LAYER.+\\n(\\s+RECT.+)+",port);
 
                     // Get the rectangles of the port
-                    String rectDimensions = port.split("LAYER.+")[1].replaceAll("(END.+|END\\n|;|\\n)", "").replaceAll("\\s+R", " R");
+                    //String rectDimensions = port.split("LAYER.+")[1].replaceAll("(END.+|END\\n|;|\\n)", "").replaceAll("\\s+R", " R");
 
-                    float x1 = -1000000,x2 = -1000000,y1=-1000000,y2= -1000000;
-                    for (String rect: rectDimensions.split("RECT")) {   // Rects Loop
-                        if(!rect.isEmpty() && !rect.equals(" ")) {
-                            int count = 0;
-                            for (String coord : rect.split(" ")) {
-                                if(!coord.isEmpty()) {
-                                    float num = Float.parseFloat(coord);
-                                    if(count == 0)
-                                        x1 = num;
-                                    else if(count == 1)
-                                        y1 = num;
-                                    else if(count == 2)
-                                        x2 = num;
-                                    else
-                                        y2 = num;
-                                    count++;
-                                }
-                            } // End of Each coordinate in a Rect loop
-                            pinRects.add(new Rect(new Vector(x1, y1, Float.parseFloat(metalNum)), new Vector(x2, y2, Float.parseFloat(metalNum))));
-                        }
-                    } // End of Each Rect in a Port loop
+                    for (String layer : layers) {
+                        // Get Layer
+                        String layerName = regexMatcher("LAYER.+", layer).get(0).replaceAll("(LAYER|\\s+|;)", "");
+                        double layerNum = layersSet.get(layerName).getLayer();
+
+                        // Get the rectangles of the layer
+                        String rectDimensions = layer.split("LAYER.+")[1].replaceAll("(END.+|END\\n|;|\\n)", "").replaceAll("\\s+R", " R");
+
+                        double x1 = -1000000,x2 = -1000000,y1=-1000000,y2= -1000000;
+                        for (String rect: rectDimensions.split("RECT")) {   // Rects Loop
+                            if(!rect.isEmpty() && !rect.equals(" ")) {
+                                int count = 0;
+                                for (String coord : rect.split(" ")) {
+                                    if(!coord.isEmpty()) {
+                                        double num = Double.parseDouble(coord);
+                                        if(count == 0)
+                                            x1 = num;
+                                        else if(count == 1)
+                                            y1 = num;
+                                        else if(count == 2)
+                                            x2 = num;
+                                        else
+                                            y2 = num;
+                                        count++;
+                                    }
+                                } // End of Each coordinate in a Rect loop
+                                pinRects.add(new Rect(new Vector(x1, y1, layerNum), new Vector(x2, y2, layerNum)));
+                            }
+                        } // End of Each Rect in a Port loop
+                    }
                     macroPins.add(new Pin(pinRects, pinName));
                 }
             } // End Each Pin Loop
