@@ -2,7 +2,7 @@ package Parser;
 
 
 public class Vector {
-    double x, y, z;
+    public double x, y, z;
 
     Vector (double x , double y , double z) {
         this.x = x ;

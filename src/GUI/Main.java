@@ -6,6 +6,8 @@ import Algorithm.Utils;
 import Parser.Macro;
 import Parser.Parser;
 import Parser.Layer;
+import Parser.Rect;
+import Parser.Vector;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -36,18 +38,16 @@ public class Main extends Application {
 
     @Override
     public void init() throws Exception {
-        /*parser.getSection(DIEAREA_REGEX, Parser.DEF_EXT );
-        parser.getSection(PINS+SECTION_REGEX, Parser.DEF_EXT);
-        parser.getSection(NETS+SECTION_REGEX, Parser.DEF_EXT);
+        /*
         parser.getSection(SPECNETS+SECTION_REGEX, Parser.DEF_EXT);
-        parser.getSection(SITE_REGEX, Parser.LEF_EXT);
        // parser.getSection(OBS_REGEX, Parser.LEF_EXT);
         */
         Parser parser = new Parser();
         Hashtable<String, Layer> layersTable = parser.getLayersTable();
         Hashtable<String,Macro> macrosTable = parser.getPlacedMacros();
         Set<Macro> macrosSet = parser.getMacrosSet(layersTable);
-
+        Rect area = parser.getDieArea();
+        Vector coreSite = parser.getCoreSite();
 
 
         scanner = new Scanner(System.in);

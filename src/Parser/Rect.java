@@ -8,4 +8,9 @@ public class Rect {
         this.point1 = point1;
         this.point2 = point2;
     }
+    
+    public Vector[] getVectors() {
+        Vector[] points = {this.point1, this.point2};
+        return points;
+    }
 }

@@ -226,5 +226,37 @@ public class Parser {
 
         return matches;
     }
+    
+    public Rect getDieArea ()
+    {
+        String die;
+        List<String> coordList = new ArrayList<>();
+        die = regexMatcher(DIEAREA_REGEX, this.defFile ).get(0).replaceAll("(DIEAREA|\\(|\\)|;)", "");
+        String[] coords = die.split("\\s");
+        for(String s: coords) {
+            if(!s.isEmpty() && !s.equals(" "))
+                coordList.add(s);
+        }
+        
+        Rect die_area = new Rect(new Vector(Double.parseDouble(coordList.get(0)), Double.parseDouble(coordList.get(1)),0) , new Vector (Double.parseDouble(coordList.get(2)), Double.parseDouble(coordList.get(3)),0));
+        return die_area ;
+    }
 
+     public Vector getCoreSite ()
+    {
+        String site;
+        site = regexMatcher(SITE_REGEX, this.lefFile ).get(0);
+        String[] coords = site.split("SIZE");
+        coords = coords[1].split("\\t+")[1].split("\\s");
+        
+        return new Vector(Double.parseDouble(coords[0]), Double.parseDouble(coords[2])) ;
+    }
+     public HashSet <HashSet <String>> getNets ()
+     {
+         HashSet <HashSet <String>> nets = new HashSet <HashSet <String>> ();
+         List <String> site;
+         site = regexMatcher(NETS+SECTION_REGEX, this.defFile );
+          
+         return nets ;
+     }
 }
