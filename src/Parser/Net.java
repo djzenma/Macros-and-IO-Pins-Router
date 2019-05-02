@@ -4,21 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Net {
-    private List <SpecialItem> routing ;
-    private List<Item> list;
+    private SpecialItem Special_Net ;
+    private List<Item> Net;
 
     public Net() {
-        this.list = new ArrayList<>();
-        this.routing = new ArrayList<>();
+        this.Net = new ArrayList<>();
     }
 
     public void insertPin(String compName, String pinName) {
-        this.list.add(new Item(compName,pinName));
+        this.Net.add(new Item(compName,pinName));
     }
     
     public void insertSpecialPin (String name , List<Rect> routingPath ,List <Via> vias)
     {
-        this.routing.add(new SpecialItem (name , routingPath , vias ));
+        this.Special_Net= new SpecialItem (name , routingPath , vias );
     }
     
     class Item {

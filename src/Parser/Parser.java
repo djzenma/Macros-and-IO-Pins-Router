@@ -290,7 +290,7 @@ public class Parser {
     }
      public HashSet <Net> getSpecialNets ()
      {
-         HashSet <Net> specialnets = new HashSet <> ();
+         HashSet <Net> Nets = new HashSet <> ();
          List <String> specialnetsList ;
          specialnetsList = regexMatcher(SPECNETS+SECTION_REGEX, this.defFile );
          String [] specialnetsBlockArray = specialnetsList.get(0).split(";");
@@ -351,8 +351,8 @@ public class Parser {
         
           String name = specialnetBlock[1].substring(2, specialnetBlock[1].length());
           net.insertSpecialPin(name, routingPath , viasList);
-          
+          Nets.add(net);
         } 
-         return specialnets ;
+         return Nets ;
      }
 }
