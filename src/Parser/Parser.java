@@ -28,7 +28,6 @@ public class Parser {
     private final String DIEAREA_REGEX = "DIEAREA.+" ;
     private final String SECTION_REGEX = "\\s+.+\\n(.+\\n)+";
     private final String  SITE_REGEX = "SITE\\s+core\\n(.+\\n)+END" ;
-    //private final String  OBS_REGEX = "OBS (\n.+)+END";
     private final String  MACRO_REGEX = "MACRO.+(\\n.+)+";
     static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
 
@@ -289,4 +288,71 @@ public class Parser {
         }
          return nets;
     }
+     public HashSet <Net> getSpecialNets ()
+     {
+         HashSet <Net> specialnets = new HashSet <> ();
+         List <String> specialnetsList ;
+         specialnetsList = regexMatcher(SPECNETS+SECTION_REGEX, this.defFile );
+         String [] specialnetsBlockArray = specialnetsList.get(0).split(";");
+        for (int i=1 ;i< specialnetsBlockArray.length-1 ; i++) //loop at every special net 
+        {
+            
+          String[] specialnetBlock = specialnetsBlockArray[i].split("\n"); // split at end lines   
+          Net net = new Net();
+          List<Rect> routingPath= new ArrayList<>();
+          List <Via> viasList= new ArrayList<>() ;
+          for (int j=2 ; j< specialnetBlock.length-1;j++) // loop at every line 
+          {
+             List <String> vias =  new ArrayList<>();
+             
+             if(!specialnetBlock[j].endsWith(")"))
+             vias = regexMatcher("M[0-9]_M[0-9]", specialnetBlock[j] );
+             else 
+             vias.add("");
+              
+             List <String> metal_layer = regexMatcher("metal.", specialnetBlock[j] );
+             String [] mlayer = metal_layer.get(0).split("metal"); //metal layer at [1]
+             
+             List <String> coordinates =  regexMatcher("\\(.+\\)", specialnetBlock[j] ); // (..) (..)
+             String [] separateCoordinates = coordinates.get(0).split("\\)");
+             Vector FirstCoordinates = null;
+             Vector SecondCoordinates = null ;
+             for ( int k=0 ; k<separateCoordinates.length ;k++) //loop at every point 
+             {
+                 separateCoordinates[k]= separateCoordinates[k].replaceAll("\\(", "");
+                 String [] numbers = separateCoordinates[k].split(" ");
+                 for (int l =0 ;l < numbers.length ; l++)
+                 { 
+                     if (!numbers[l].isEmpty() && numbers[l].equals("*"))
+                     {
+                         if (!numbers[l-1].equals("")) {
+                          numbers[l] = numbers[l-1];
+                         }
+                         else 
+                         {
+                            numbers[l] =  Double.toString(FirstCoordinates.y) ;
+                         }
+                         
+                     }                           
+                }
+                if (k == 0)
+                   FirstCoordinates = new Vector (Double.parseDouble(numbers[1]) , Double.parseDouble(numbers[2]),Double.parseDouble(mlayer[1]));
+                else
+                   SecondCoordinates = new Vector (Double.parseDouble(numbers[2]) , Double.parseDouble(numbers[3]),Double.parseDouble(mlayer[1]));
+                    
+             }
+             
+             routingPath.add(new Rect (FirstCoordinates , SecondCoordinates));
+             if (vias.get(0) != "")
+             viasList.add(new Via (vias.get(0) , SecondCoordinates));
+             else
+             viasList.add(new Via (vias.get(0) , null)); 
+          }
+        
+          String name = specialnetBlock[1].substring(2, specialnetBlock[1].length());
+          net.insertSpecialPin(name, routingPath , viasList);
+          
+        } 
+         return specialnets ;
+     }
 }

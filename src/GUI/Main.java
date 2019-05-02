@@ -40,10 +40,7 @@ public class Main extends Application {
 
     @Override
     public void init() throws Exception {
-        /*
-        parser.getSection(SPECNETS+SECTION_REGEX, Parser.DEF_EXT);
-       // parser.getSection(OBS_REGEX, Parser.LEF_EXT);
-        */
+       
         Parser parser = new Parser();
         Hashtable<String, Layer> layersTable = parser.getLayersTable();
         Hashtable<String,Macro> macrosTable = parser.getPlacedMacros();
@@ -51,6 +48,7 @@ public class Main extends Application {
         Rect area = parser.getDieArea();
         Vector coreSite = parser.getCoreSite();
         HashSet<Net> netsSet = parser.getNets() ;
+        HashSet<Net> specialnetsSet =parser.getSpecialNets () ;
 
         scanner = new Scanner(System.in);
         controller = new Controller();
