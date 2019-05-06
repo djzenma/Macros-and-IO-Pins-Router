@@ -1,4 +1,4 @@
-package GUI;
+ package GUI;
 
 import Algorithm.Maze;
 import Algorithm.Utils;
@@ -9,6 +9,8 @@ import Parser.Layer;
 import Parser.Rect;
 import Parser.Vector;
 import Parser.Net;
+import Parser.Track;
+import Placement.Placer;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -45,16 +47,16 @@ public class Main extends Application {
         Hashtable<String, Layer> layersTable = parser.getLayersTable();
         Hashtable<String,Macro> macrosTable = parser.getPlacedMacros();
         Set<Macro> macrosSet = parser.getMacrosSet(layersTable);
-        Rect area = parser.getDieArea();
+        Rect dieArea = parser.getDieArea(); 
         Vector coreSite = parser.getCoreSite();
         HashSet<Net> netsSet = parser.getNets() ;
         HashSet<Net> specialnetsSet =parser.getSpecialNets () ;
-
-        scanner = new Scanner(System.in);
+        Hashtable <String , Track> siteNumbers =  parser.get_siteNumber ();
+        Placer placer = new Placer(siteNumbers, dieArea, coreSite , macrosTable,  macrosSet);
+        placer.constructGrids();
+        
         controller = new Controller();
         gridContainer = new GridPane();
-
-        initialization = Utils.takeGridDimsAndViaCost(scanner);
 
         maze = null;
         firstTime = true;

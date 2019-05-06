@@ -22,7 +22,7 @@ public class AStar {
     private final int cols;
     private final int rows;
 
-    private Node[][][] searchArea;
+    private Node [][][] searchArea; 
     private PriorityQueue<Node> openList;
     private Set<Node> closedSet;
     private Node initialNode;

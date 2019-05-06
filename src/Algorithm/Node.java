@@ -1,5 +1,7 @@
 package Algorithm;
 
+import Parser.Pin;
+
 /**
  * A node in the AStar search area grid
  */
@@ -13,7 +15,7 @@ public class Node {
     private boolean isObstacle;
     private Node parent;
     private int z;
-
+    private Pin pin ;
     /**
      * @param x coordinate of this node
      * @param y coordinate of this node

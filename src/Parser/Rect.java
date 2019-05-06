@@ -13,4 +13,13 @@ public class Rect {
         Vector[] points = {this.point1, this.point2};
         return points;
     }
+    public int getX ()
+    {
+        return (int) Math.abs(point2.x - point1.x);
+    }
+    
+    public int getY ()
+    {
+        return (int) Math.abs(point2.y - point1.y);
+    }
 }

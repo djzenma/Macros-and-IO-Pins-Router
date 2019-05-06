@@ -154,7 +154,6 @@ public class Parser {
             // Extract Macro Name
             String macroName;
             macroName = regexMatcher("MACRO.+", s).get(0).replaceAll("(MACRO|\\s+)", "");
-            System.out.println(macroName);
 
             // Extract All the Pins block of each Macro
             StringBuilder allPins = new StringBuilder();
@@ -355,4 +354,35 @@ public class Parser {
         } 
          return Nets ;
      }
+     
+     public Hashtable <String , Track>  get_siteNumber ()
+     {
+         Hashtable <String , Track> rtrn  = new Hashtable() ;
+         List <String> siteNumbers ;
+         List <String> metalLayer ;
+         List <String> trackDirection ;
+         
+         siteNumbers = regexMatcher("DO.+STEP", this.defFile );
+         metalLayer = regexMatcher("LAYER.+ ", this.defFile );
+         trackDirection = regexMatcher("TRACKS\\s+.", this.defFile);
+         for (int i =0 ;i<siteNumbers.size() ;i++)
+         {
+         String [] siteNumbers_Spaced = siteNumbers.get(i).split(" ");
+         String [] metalLayer_Spaced = metalLayer.get(i).split(" ");
+         String directionStr = trackDirection.get(i).replaceAll("TRACKS ", "");
+         
+         boolean direction;
+            if(directionStr.equals("X"))
+                direction = Track.X;
+            else
+                direction = Track.Y;
+            
+          rtrn.put(metalLayer_Spaced[1],new Track(Integer.parseInt(siteNumbers_Spaced[1]), direction));
+         }
+
+   
+         
+         return rtrn ;
+     }
+     
 }

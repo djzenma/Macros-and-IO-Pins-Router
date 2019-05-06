@@ -6,10 +6,10 @@ import java.util.List;
 
 public class Macro {
     
-   Vector location;
-   String name;
-   ArrayList <Pin> pins;
-   List <Rect> obsList;
+   public Vector location;
+   public String name;
+   public ArrayList <Pin> pins;
+   public List <Rect> obsList;
 
    Macro(String name, Vector location, ArrayList <Pin> pins, List<Rect> obsList) {
        this.name = name;
