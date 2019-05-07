@@ -1,8 +1,8 @@
 package Parser;
 
 public class Rect {
-    private Vector point1;
-    private Vector point2;
+    public Vector point1;
+    public Vector point2;
 
     public Rect(Vector point1, Vector point2) {
         this.point1 = point1;

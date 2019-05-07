@@ -145,8 +145,8 @@ public class Parser {
     /*
      *  @return Set with all the Library MACROS defined in the LEF File
      */
-    public Set getMacrosSet(Hashtable<String, Layer> layersSet) {
-        Set <Macro> macrosSet = new HashSet<>();
+    public Hashtable getMacrosDefinitions(Hashtable<String, Layer> layersSet) {
+        Hashtable <String, Macro> macrosSet = new Hashtable<>();
 
         List<String> lefMacros = this.getSection(MACRO_REGEX, Parser.LEF_EXT);  // All Macros
         // Iterate over all Macros
@@ -161,7 +161,7 @@ public class Parser {
             ArrayList<Pin> macroPins = getPins(allPins, layersSet);
             List<Rect> obs = getObs(s, layersSet);
 
-            macrosSet.add(new Macro(macroName, new Vector(0,0,0), macroPins, obs));
+            macrosSet.put(macroName,new Macro(macroName, new Vector(0,0,0), macroPins, obs));
         });
 
         return macrosSet;
@@ -385,7 +385,7 @@ public class Parser {
             else
                 direction = Track.Y;
 
-          rtrn.put( Integer.parseInt(metalLayer_Spaced[1].substring(metalLayer_Spaced[1].length())), new Track(metalLayer_Spaced[1], Integer.parseInt(siteNumbers_Spaced[4]), direction, Integer.parseInt(siteNumbers_Spaced[6]), Integer.parseInt(siteNumbers_Spaced[2])));
+          rtrn.put( Integer.parseInt(metalLayer_Spaced[1].substring(metalLayer_Spaced[1].length()-1)), new Track(metalLayer_Spaced[1], Integer.parseInt(siteNumbers_Spaced[4]), direction, Integer.parseInt(siteNumbers_Spaced[6]), Integer.parseInt(siteNumbers_Spaced[2])));
          }
 
    

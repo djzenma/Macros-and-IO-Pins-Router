@@ -7,6 +7,8 @@ import Parser.Pin;
  */
 public class Node {
 
+    public enum NodeType  {Empty, Obstacle, Pin};
+    public NodeType nodeType;
     private int g;
     private int f;
     private int h;
@@ -26,6 +28,7 @@ public class Node {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.nodeType = NodeType.Empty;
     }
 
     /** Calculates the Heuristic value from this node to the target node
@@ -127,6 +130,7 @@ public class Node {
 
     public void setObstacle(boolean isBlock) {
         this.isObstacle = isBlock;
+        this.nodeType = NodeType.Obstacle;
     }
 
     public int getX() {

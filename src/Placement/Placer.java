@@ -1,13 +1,10 @@
 
 package Placement;
 import Algorithm.Node;
+import GUI.Controller;
 import Parser.*;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
 
 public class Placer {
 
@@ -15,8 +12,8 @@ public class Placer {
     private Hashtable <Integer , Track> tracks;
     private Rect dieArea ;
     private Vector coreSite ;
-    private Hashtable<String,Macro> macrosTable ;
-    private Set<Macro> macrosSet;
+    private Hashtable<String,Macro> placedMacros;       //placedMacros
+    private Hashtable<String,Macro> definedMacros;          //DefinedMacros
 
     private Node[][][] grids;
     private int xSize, ySize, zSize;    // The number of cells per grid layer
@@ -25,14 +22,15 @@ public class Placer {
     private Hashtable<Integer, Integer> layersRatios;   // The ratio of every metal layer relative to the maximum one
 
     public Placer (Hashtable <Integer , Track> tracks, Rect dieArea ,
-                   Vector coreSite , Hashtable<String,Macro> macrosTable, Set<Macro> macrosSet, Hashtable<String, Layer> layersTable)
+                   Vector coreSite , Hashtable<String,Macro> placedMacros, Hashtable<String, Macro> definedMacros, Hashtable<String, Layer> layersTable)
     {
         this.tracks = tracks ;
         this.dieArea = dieArea ;
         this.coreSite = coreSite ;
-        this.macrosTable = macrosTable ;
-        this.macrosSet = macrosSet ;
+        this.placedMacros = placedMacros;
+        this.definedMacros = definedMacros;
         this.layersTable = layersTable;
+        this.layersRatios = new Hashtable<>();
         constructGrids();
     }
     
@@ -67,10 +65,10 @@ public class Placer {
         // Calculating the ratio of every metal layer relative to the maximum one
         tracks.forEach((key, track) -> {
             if(track.direction == Track.X) {
-                this.layersRatios.put( key, track.number / xMax[0]);
+                this.layersRatios.put( key,xMax[0] / track.number);
             }
             else {
-                this.layersRatios.put( key, track.number / yMax[0]);
+                this.layersRatios.put( key, yMax[0] / track.number);
             }
         });
 
@@ -88,32 +86,95 @@ public class Placer {
 
 
     public void addObsInGrid () {
-        macrosSet.forEach((macro)-> {
-            macro.obsList.forEach(rect -> {
+        placedMacros.forEach((key, macro)-> {
+            Macro macroDefinition =  definedMacros.get(macro.name);
+            Vector baseLocation = macro.location;
 
+            macroDefinition.obsList.forEach(rect -> {
+                Rect convertedRect = convertUnitToCell(rect, baseLocation);
+                int zKey = convertedRect.getZ();
+                for (int i = (int)convertedRect.point1.x; i<= (int)convertedRect.point2.x;i++){
+                    for (int j = (int)convertedRect.point1.y; j < (int)convertedRect.point2.y; j++){
+                        Node node = new Node(i, j, zKey);
+                        node.setObstacle(true);
+                        grids[i][j][zKey] = node;
+                    }
+                }
             });
         });
     }
 
-    public List<Vector> convertUnitToCell(Rect rect) {
-        List<Vector> cellVectors = new ArrayList<>();
-        for (Vector vector: rect.getVectors()) {
-            int x = (int) Math.floor((vector.x - xStart)/cellWidth);
-            int y = (int) Math.floor((vector.y - yStart)/cellHeight);
-            legalizeIndexes(x,y, rect.getZ());
-            cellVectors.add(new Vector(x,y, (double) rect.getZ()));
-            Integer zKey = rect.getZ();
-            //if(tracks.get(zKey).direction)
-        }
 
-        return cellVectors;
+    public void addPinsInGrid () {
+        placedMacros.forEach((key, macro)-> {
+            Macro macroDefinition =  definedMacros.get(macro.name);
+            Vector baseLocation = macro.location;
+
+            macroDefinition.pins.forEach(pin -> {
+                pin.rectList.forEach((rect) -> {
+                    Rect convertedRect = convertUnitToCell(rect, baseLocation);
+                    int zKey = convertedRect.getZ();
+                    for (int i = (int)convertedRect.point1.x; i<= (int)convertedRect.point2.x;i++){
+                        for (int j = (int)convertedRect.point1.y; j < (int)convertedRect.point2.y; j++){
+                            Node node = new Node(i, j, zKey);
+                            node.nodeType = Node.NodeType.Pin;
+                            grids[i][j][zKey] = node;
+                        }
+                    }
+                });
+            });
+        });
     }
 
-    private List<Vector> legalizeIndexes(int x, int y, int z) {
-        List<Vector> indexes = new ArrayList<>();
+    public Rect convertUnitToCell(Rect rect, Vector baseLocation) {
+        Vector one = new Vector((int) Math.floor((rect.point1.x + baseLocation.x - xStart)/cellWidth), (int) Math.floor((rect.point1.y + baseLocation.y - yStart)/cellHeight));
+        Vector two = new Vector((int) Math.floor((rect.point2.x + baseLocation.x - xStart)/cellWidth), (int) Math.floor((rect.point2.y + baseLocation.y - yStart)/cellHeight));
+
+        Integer zKey = rect.getZ();
+
+        return legalizeIndexes(new Rect(one, two), zKey);
+
+    }
+
+    private Rect legalizeIndexes(Rect rect, Integer zKey) {
+
+        int xStart = (int)rect.point1.x;
+        int yStart = (int)rect.point1.y;
+
+        int xEnd = (int)rect.point2.x;
+        int yEnd = (int) rect.point2.y;
+
+        if(tracks.get(zKey).direction == Track.X){
+            yStart = yStart - (yStart % layersRatios.get(zKey));
+            yEnd = yEnd - (yEnd % layersRatios.get(zKey)) + layersRatios.get(zKey) - 1;
+            
+        }else{
+            xStart = xStart - (xStart % layersRatios.get(zKey));
+            xEnd = xEnd - (xEnd % layersRatios.get(zKey)) + layersRatios.get(zKey) - 1;
+        }
 
 
-        return indexes;
+        return new Rect(new Vector(xStart, yStart, zKey), new Vector(xEnd, yEnd, zKey));
+    }
+
+    public void draw(Controller controller){
+        for (int i = 0; i < xSize; i++) {
+            for (int j = 0; j < ySize; j++) {
+                for (int k = 0; k < zSize; k++) {
+                    switch (this.grids[i][j][k].nodeType) {
+                        case Empty:
+                            controller.maze[i][j][k] = 0;
+                            break;
+                        case Pin:
+                            controller.maze[i][j][k] = 1;
+                            break;
+                        case Obstacle:
+                            controller.maze[i][j][k] = 1;
+                            break;
+                    }
+                }
+            }
+        }
     }
 
     

@@ -42,14 +42,14 @@ public class Main extends Application {
         Parser parser = new Parser();
         Hashtable<String, Layer> layersTable = parser.getLayersTable();
         Hashtable<String,Macro> macrosTable = parser.getPlacedMacros();
-        Set<Macro> macrosSet = parser.getMacrosSet(layersTable);
+        Hashtable<String, Macro> macrosSet = parser.getMacrosDefinitions(layersTable);
         Rect dieArea = parser.getDieArea(); 
         Vector coreSite = parser.getCoreSite();
         HashSet<Net> netsSet = parser.getNets() ;
         HashSet<Net> specialnetsSet =parser.getSpecialNets () ;
         Hashtable <Integer , Track> tracks =  parser.getTracks();
         Placer placer = new Placer(tracks, dieArea, coreSite , macrosTable,  macrosSet, layersTable);
-        List<Vector> cellsVector = placer.convertUnitToCell(macrosSet.iterator().next().obsList.get(0));
+        placer.addObsInGrid();
 
         controller = new Controller();
         gridContainer = new GridPane();
