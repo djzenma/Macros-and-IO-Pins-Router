@@ -15,12 +15,14 @@ public class Placer {
     private Hashtable <Integer , Track> tracks;
     private Rect dieArea ;
     private Vector coreSite ;
-    private Node[][][] grids;
     private Hashtable<String,Macro> macrosTable ;
     private Set<Macro> macrosSet;
-    private int xSize, ySize, zSize;
-    private int xStart, yStart;
+
+    private Node[][][] grids;
+    private int xSize, ySize, zSize;    // The number of cells per grid layer
+    private int xStart, yStart;         // Coordinates of the start of the grid
     private int cellWidth, cellHeight;
+    private Hashtable<Integer, Integer> layersRatios;   // The ratio of every metal layer relative to the maximum one
 
     public Placer (Hashtable <Integer , Track> tracks, Rect dieArea ,
                    Vector coreSite , Hashtable<String,Macro> macrosTable, Set<Macro> macrosSet, Hashtable<String, Layer> layersTable)
@@ -38,6 +40,7 @@ public class Placer {
         final int[] xMax = {0};
         final int[] yMax = {0};
 
+        // Getting the maximum number of cells to create our grids
         tracks.forEach((key, track) -> {
             if(track.direction == Track.X) {
                 if(track.number > xMax[0]) {
@@ -55,9 +58,21 @@ public class Placer {
             }
         });
 
+        // The maximum number of cells per layer
         this.xSize = xMax[0];
         this.ySize = yMax[0];
         this.zSize = tracks.size();
+
+
+        // Calculating the ratio of every metal layer relative to the maximum one
+        tracks.forEach((key, track) -> {
+            if(track.direction == Track.X) {
+                this.layersRatios.put( key, track.number / xMax[0]);
+            }
+            else {
+                this.layersRatios.put( key, track.number / yMax[0]);
+            }
+        });
 
 
         // Initialization
@@ -85,12 +100,20 @@ public class Placer {
         for (Vector vector: rect.getVectors()) {
             int x = (int) Math.floor((vector.x - xStart)/cellWidth);
             int y = (int) Math.floor((vector.y - yStart)/cellHeight);
+            legalizeIndexes(x,y, rect.getZ());
             cellVectors.add(new Vector(x,y, (double) rect.getZ()));
             Integer zKey = rect.getZ();
             //if(tracks.get(zKey).direction)
         }
 
         return cellVectors;
+    }
+
+    private List<Vector> legalizeIndexes(int x, int y, int z) {
+        List<Vector> indexes = new ArrayList<>();
+
+
+        return indexes;
     }
 
     
