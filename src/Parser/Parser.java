@@ -242,6 +242,8 @@ public class Parser {
         return matches;
     }
 
+
+
     public Rect getDieArea ()
     {
         String die;
@@ -253,9 +255,10 @@ public class Parser {
                 coordList.add(s);
         }
 
-        Rect die_area = new Rect(new Vector(Double.parseDouble(coordList.get(0)), Double.parseDouble(coordList.get(1)),0) , new Vector (Double.parseDouble(coordList.get(2)), Double.parseDouble(coordList.get(3)),0));
-        return die_area ;
+        return new Rect(new Vector(Double.parseDouble(coordList.get(0)), Double.parseDouble(coordList.get(1)),0) , new Vector (Double.parseDouble(coordList.get(2)), Double.parseDouble(coordList.get(3)),0));
     }
+
+
 
      public Vector getCoreSite ()
     {
@@ -266,6 +269,7 @@ public class Parser {
 
         return new Vector(Double.parseDouble(coords[0]), Double.parseDouble(coords[2])) ;
     }
+
 
      public HashSet <Net> getNets () {
         HashSet <Net> nets = new HashSet <> ();
@@ -287,6 +291,10 @@ public class Parser {
         }
          return nets;
     }
+
+
+
+
      public HashSet <Net> getSpecialNets ()
      {
          HashSet <Net> Nets = new HashSet <> ();
@@ -354,19 +362,19 @@ public class Parser {
         } 
          return Nets ;
      }
+
      
-     public Hashtable <String , Track>  get_siteNumber ()
+     public Hashtable <Integer , Track> getTracks()
      {
-         Hashtable <String , Track> rtrn  = new Hashtable() ;
+         Hashtable <Integer , Track> rtrn  = new Hashtable() ;
          List <String> siteNumbers ;
          List <String> metalLayer ;
          List <String> trackDirection ;
          
-         siteNumbers = regexMatcher("DO.+STEP", this.defFile );
+         siteNumbers = regexMatcher("TRACKS.+STEP\\s+\\d+", this.defFile );
          metalLayer = regexMatcher("LAYER.+ ", this.defFile );
          trackDirection = regexMatcher("TRACKS\\s+.", this.defFile);
-         for (int i =0 ;i<siteNumbers.size() ;i++)
-         {
+         for (int i =0 ;i<siteNumbers.size() ;i++) {
          String [] siteNumbers_Spaced = siteNumbers.get(i).split(" ");
          String [] metalLayer_Spaced = metalLayer.get(i).split(" ");
          String directionStr = trackDirection.get(i).replaceAll("TRACKS ", "");
@@ -376,8 +384,8 @@ public class Parser {
                 direction = Track.X;
             else
                 direction = Track.Y;
-            
-          rtrn.put(metalLayer_Spaced[1],new Track(Integer.parseInt(siteNumbers_Spaced[1]), direction));
+
+          rtrn.put( Integer.parseInt(metalLayer_Spaced[1].substring(metalLayer_Spaced[1].length())), new Track(metalLayer_Spaced[1], Integer.parseInt(siteNumbers_Spaced[4]), direction, Integer.parseInt(siteNumbers_Spaced[6]), Integer.parseInt(siteNumbers_Spaced[2])));
          }
 
    

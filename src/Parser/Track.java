@@ -5,20 +5,24 @@
  */
 package Parser;
 
-/**
- *
- * @author owner
- */
 public class Track {
     public Integer number;
     public boolean direction;
-    
+    public int step;
+    public int start;
+    public int end;
+    public String name;
+
     public static boolean X = true;
     public static boolean Y = false;
+
     
-    
-    Track(Integer num, boolean direction) {
+    Track(String name, Integer num, boolean direction, int step, int start) {
+        this.name = name;
         this.number = num;
         this.direction = direction;
+        this.step = step;
+        this.start = start;
+        this.end = this.start + (this.number-1) * this.step;
     }
 }

@@ -22,4 +22,8 @@ public class Rect {
     {
         return (int) Math.abs(point2.y - point1.y);
     }
+
+    public int getZ() {
+        return (int) this.point1.z;
+    }
 }

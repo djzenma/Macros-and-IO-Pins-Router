@@ -1,7 +1,6 @@
  package GUI;
 
 import Algorithm.Maze;
-import Algorithm.Utils;
 
 import Parser.Macro;
 import Parser.Parser;
@@ -20,13 +19,10 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 
-/**
+ /**
  *  The Main GUI Class, it waits until the Algorihtm's Main finishes execution and the proceeds with its own execution
  */
 public class Main extends Application {
@@ -51,10 +47,10 @@ public class Main extends Application {
         Vector coreSite = parser.getCoreSite();
         HashSet<Net> netsSet = parser.getNets() ;
         HashSet<Net> specialnetsSet =parser.getSpecialNets () ;
-        Hashtable <String , Track> siteNumbers =  parser.get_siteNumber ();
-        Placer placer = new Placer(siteNumbers, dieArea, coreSite , macrosTable,  macrosSet);
-        placer.constructGrids();
-        
+        Hashtable <Integer , Track> tracks =  parser.getTracks();
+        Placer placer = new Placer(tracks, dieArea, coreSite , macrosTable,  macrosSet, layersTable);
+        List<Vector> cellsVector = placer.convertUnitToCell(macrosSet.iterator().next().obsList.get(0));
+
         controller = new Controller();
         gridContainer = new GridPane();
 
