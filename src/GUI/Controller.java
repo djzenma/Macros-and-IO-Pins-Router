@@ -17,6 +17,7 @@ public class Controller implements Printer {
     public int[][][] maze;
     public int rows;
     public int cols;
+    public int height;
 
     // UI
     public GridPane metal1 = new GridPane();
@@ -47,10 +48,11 @@ public class Controller implements Printer {
      * @param cols The Grid's number of columns
      */
     @Override
-    public void setMaze(int[][][] maze, int rows, int cols) {
+    public void setMaze(int[][][] maze, int rows, int cols, int height) {
         this.maze = maze;
         this.rows = rows;
         this.cols = cols;
+        this.height = height;
     }
 
     /**
@@ -69,12 +71,12 @@ public class Controller implements Printer {
      * @param j coordinate of the label in the Metal 1 Grid
      */
     public void setInMetal1Grid(Label l, int i, int j) {
-        String metalStyle = "-fx-background-color: " + " #33F6FF;" + "-fx-border-color: black; -fx-font-size: 30;";
-        String pinStyle = "-fx-background-color: #33F6FF; -fx-border-color: black; -fx-font-size: 20;";
-        l.setMinHeight(30.0);
-        l.setMaxHeight(30.0);
-        l.setMinWidth(30.0);
-        l.setMaxWidth(30.0);
+        String metalStyle = "-fx-background-color: " + " #33F6FF;" + "-fx-border-color: black; -fx-font-size: 2;";
+        String pinStyle = "-fx-background-color: #33F6FF; -fx-border-color: black; -fx-font-size: 2;";
+        l.setMinHeight(6.0);
+        l.setMaxHeight(6.0);
+        l.setMinWidth(6.0);
+        l.setMaxWidth(6.0);
 
         if(l.getText().equals("1"))
             l.setStyle(metalStyle);
@@ -97,12 +99,12 @@ public class Controller implements Printer {
      * @param j coordinate of the label in the Metal 2 Grid
      */
     public void setInMetal2Grid(Label l, int i, int j) {
-        String metalStyle = "-fx-background-color: #FF00C5; -fx-border-color: black; -fx-font-size: 30;";
-        String pinStyle = "-fx-background-color: #FF00C5; -fx-border-color: black; -fx-font-size: 20;";
-        l.setMinHeight(30.0);
-        l.setMaxHeight(30.0);
-        l.setMinWidth(30.0);
-        l.setMaxWidth(30.0);
+        String metalStyle = "-fx-background-color: #FF00C5; -fx-border-color: black; -fx-font-size: 2;";
+        String pinStyle = "-fx-background-color: #FF00C5; -fx-border-color: black; -fx-font-size: 2;";
+        l.setMinHeight(6.0);
+        l.setMaxHeight(6.0);
+        l.setMinWidth(6.0);
+        l.setMaxWidth(6.0);
 
         if(l.getText().equals("2"))
             l.setStyle(metalStyle);
@@ -125,12 +127,12 @@ public class Controller implements Printer {
      * @param j coordinate of the label in the Metal 3 Grid
      */
     public void setInMetal3Grid(Label l, int i, int j) {
-        String metalStyle = "-fx-background-color: #000FFF; -fx-border-color: black; -fx-font-size: 15;";
-        String pinStyle = "-fx-background-color: #000FFF; -fx-border-color: black; -fx-text-fill: #E7E7E7; -fx-font-size: 20;";
-        l.setMinHeight(30.0);
-        l.setMaxHeight(30.0);
-        l.setMinWidth(30.0);
-        l.setMaxWidth(30.0);
+        String metalStyle = "-fx-background-color: #000FFF; -fx-border-color: black; -fx-font-size: 2;";
+        String pinStyle = "-fx-background-color: #000FFF; -fx-border-color: black; -fx-text-fill: #E7E7E7; -fx-font-size: 2;";
+        l.setMinHeight(6.0);
+        l.setMaxHeight(6.0);
+        l.setMinWidth(6.0);
+        l.setMaxWidth(6.0);
 
         if(l.getText().equals("3"))
             l.setStyle(metalStyle);

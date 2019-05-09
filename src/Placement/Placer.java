@@ -6,14 +6,16 @@ import Parser.*;
 
 import java.util.Hashtable;
 
+import static Algorithm.Node.*;
+
 public class Placer {
 
     private final Hashtable<String, Layer> layersTable;
     private Hashtable <Integer , Track> tracks;
     private Rect dieArea ;
     private Vector coreSite ;
-    private Hashtable<String,Macro> placedMacros;       //placedMacros
-    private Hashtable<String,Macro> definedMacros;          //DefinedMacros
+    private Hashtable<String,Macro> placedMacros;
+    private Hashtable<String,Macro> definedMacros;
 
     private Node[][][] grids;
     private int xSize, ySize, zSize;    // The number of cells per grid layer
@@ -91,13 +93,15 @@ public class Placer {
             Vector baseLocation = macro.location;
 
             macroDefinition.obsList.forEach(rect -> {
-                Rect convertedRect = convertUnitToCell(rect, baseLocation);
-                int zKey = convertedRect.getZ();
-                for (int i = (int)convertedRect.point1.x; i<= (int)convertedRect.point2.x;i++){
-                    for (int j = (int)convertedRect.point1.y; j < (int)convertedRect.point2.y; j++){
-                        Node node = new Node(i, j, zKey);
-                        node.setObstacle(true);
-                        grids[i][j][zKey] = node;
+                if(rect.getZ() != 0) {
+                    Rect convertedRect = convertUnitToCell(rect, baseLocation);
+                    int zKey = convertedRect.getZ();
+                    for (int i = (int) convertedRect.point1.x; i <= (int) convertedRect.point2.x; i++) {
+                        for (int j = (int) convertedRect.point1.y; j < (int) convertedRect.point2.y; j++) {
+                            Node node = new Node(i, j, zKey);
+                            node.setObstacle(true);
+                            grids[i][j][zKey] = node;
+                        }
                     }
                 }
             });
@@ -117,7 +121,7 @@ public class Placer {
                     for (int i = (int)convertedRect.point1.x; i<= (int)convertedRect.point2.x;i++){
                         for (int j = (int)convertedRect.point1.y; j < (int)convertedRect.point2.y; j++){
                             Node node = new Node(i, j, zKey);
-                            node.nodeType = Node.NodeType.Pin;
+                            node.nodeType = NodeType.Pin;
                             grids[i][j][zKey] = node;
                         }
                     }
@@ -157,25 +161,44 @@ public class Placer {
         return new Rect(new Vector(xStart, yStart, zKey), new Vector(xEnd, yEnd, zKey));
     }
 
-    public void draw(Controller controller){
+    public int[][][] draw(){
+        int[][][] maze = new int[xSize][ySize][zSize];
+
         for (int i = 0; i < xSize; i++) {
             for (int j = 0; j < ySize; j++) {
                 for (int k = 0; k < zSize; k++) {
                     switch (this.grids[i][j][k].nodeType) {
                         case Empty:
-                            controller.maze[i][j][k] = 0;
+                            maze[i][j][k] = 0;
                             break;
                         case Pin:
-                            controller.maze[i][j][k] = 1;
-                            break;
                         case Obstacle:
-                            controller.maze[i][j][k] = 1;
+                            maze[i][j][k] = 1;
                             break;
                     }
                 }
             }
         }
+
+        return maze;
     }
 
-    
+
+    public int getxSize() {
+        return xSize;
+    }
+
+    public int getySize() {
+        return ySize;
+    }
+
+    public int getzSize() {
+        return zSize;
+    }
+
+
+    public Node[][][] getGrids() {
+        return grids;
+    }
+
 }

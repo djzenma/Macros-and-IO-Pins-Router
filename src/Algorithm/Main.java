@@ -32,7 +32,7 @@ public class Main {
 
         // If first time, initialize the maze grid
         if(GUI.Main.firstTime) {
-            GUI.Main.maze = new Maze(GUI.Main.initialization[0], GUI.Main.initialization[1], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), new Node(targetCoords[0], targetCoords[1], targetCoords[2]));
+            GUI.Main.maze = new Maze(GUI.Main.dimensions[0], GUI.Main.dimensions[1], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), new Node(targetCoords[0], targetCoords[1], targetCoords[2]));
             GUI.Main.firstTime = false;
         }
         // Else, set the new source and target and check if valid
@@ -56,10 +56,10 @@ public class Main {
         if(!invalidCells && path.size() != 0) {
             System.out.println("Path Found!");
             GUI.Main.maze.printPath(path);
-            controller.setMaze(GUI.Main.maze.getMaze(), GUI.Main.initialization[0], GUI.Main.initialization[1]);   // Pass the new maze to the GUI
+            controller.setMaze(GUI.Main.maze.getMaze(), GUI.Main.dimensions[0], GUI.Main.dimensions[1], GUI.Main.dimensions[2]);   // Pass the new maze to the GUI
             // Calculate Cost Function
             int cellsCount = path.size();
-            int viaCost = GUI.Main.initialization[2];
+            int viaCost = GUI.Main.dimensions[2];
             int viasCount = calculateNumVias(path);
             int cost = cellsCount + (viasCount * viaCost);
             System.out.println("Cost = " + cost);
