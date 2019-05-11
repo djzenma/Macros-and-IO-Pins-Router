@@ -131,7 +131,7 @@ public class Node {
     }
 
     public void setObstacle(boolean isBlock) {
-        this.isObstacle = isBlock;
+        this.isObstacle = true;
         this.nodeType = NodeType.Obstacle;
     }
 

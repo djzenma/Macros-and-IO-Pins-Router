@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Net {
     private SpecialItem Special_Net ;
+
+
     private List<Item> Net;
 
     public Net() {
@@ -14,13 +16,18 @@ public class Net {
     public void insertPin(String compName, String pinName) {
         this.Net.add(new Item(compName,pinName));
     }
-    
+
     public void insertSpecialPin (String name , List<Rect> routingPath ,List <Via> vias)
     {
         this.Special_Net= new SpecialItem (name , routingPath , vias );
     }
-    
-    class Item {
+
+    public List<Item> getNet() {
+        return Net;
+    }
+
+
+    public static class Item {
         public String compName, pinName;
 
         public Item(String compName, String pinName) {
@@ -28,7 +35,8 @@ public class Net {
             this.pinName = pinName;
         }
     }
-    class SpecialItem{
+
+    public class SpecialItem{
         public String name ;
         public List<Rect> routingPath;
         public List <Via> vias ;

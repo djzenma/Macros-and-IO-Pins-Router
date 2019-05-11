@@ -16,10 +16,10 @@ public class Placer {
     private Hashtable<String,Macro> placedMacros;
     private Hashtable<String,Macro> definedMacros;
 
-    private Node[][][] grids;
-    private int xSize, ySize, zSize;    // The number of cells per grid layer
-    private int xStart, yStart;         // Coordinates of the start of the grid
-    private int cellWidth, cellHeight;
+    public static Node[][][] grids;
+    public static int xSize, ySize, zSize;    // The number of cells per grid layer
+    public static int xStart, yStart;         // Coordinates of the start of the grid
+    public static int cellWidth, cellHeight;
     private Hashtable<Integer, Integer> layersRatios;   // The ratio of every metal layer relative to the maximum one
 
     public Placer (Hashtable <Integer , Track> tracks, Rect dieArea ,
@@ -108,7 +108,9 @@ public class Placer {
     }
 
 
-    public void addPinsInGrid () {
+    public Hashtable<Parser.Net.Item, Vector> addPinsInGrid () {
+        Hashtable<Parser.Net.Item, Vector> pinLocations = new Hashtable<>();
+
         placedMacros.forEach((key, macro)-> {
             Macro macroDefinition =  definedMacros.get(macro.name);
             Vector baseLocation = macro.location;
@@ -121,12 +123,13 @@ public class Placer {
                         for (int j = Math.min( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j <= Math.max( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j++) {
                             if(grids[i][j][zKey].nodeType == Node.NodeType.Pin){
                                 grids[i][j][zKey].pin.add(pin);
-                       
                             }
                             else {
                                 Node node = new Node(i, j, zKey);
                                 node.nodeType = NodeType.Pin;
+                                pin.location = new Vector(i, j, zKey);
                                 node.pin.add(pin);
+                                pinLocations.put(new Parser.Net.Item(macro.name, pin.name), pin.location);
                                 grids[i][j][zKey] = node;
                             }
                         }
@@ -134,6 +137,8 @@ public class Placer {
                 });
             });
         });
+
+        return pinLocations;
              
     }
 
@@ -174,7 +179,7 @@ public class Placer {
         for (int i = 0; i < xSize; i++) {
             for (int j = 0; j < ySize; j++) {
                 for (int k = 0; k < zSize; k++) {
-                    switch (this.grids[i][j][k].nodeType) {
+                    switch (grids[i][j][k].nodeType) {
                         case Empty:
                             maze[i][j][k] = 0;
                             break;

@@ -11,6 +11,7 @@ import Parser.Net;
 import Parser.Track;
 import Placement.Placer;
 
+import Routing.Router;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -43,17 +44,19 @@ public class Main extends Application {
        
         Parser parser = new Parser();
         Hashtable<String, Layer> layersTable = parser.getLayersTable();
-        Hashtable<String,Macro> macrosTable = parser.getPlacedMacros();
-        Hashtable<String, Macro> macrosSet = parser.getMacrosDefinitions(layersTable);
+        Hashtable<String, Macro> placedMacros = parser.getPlacedMacros();
+        Hashtable<String, Macro> definedMacros = parser.getMacrosDefinitions(layersTable);
         Rect dieArea = parser.getDieArea(); 
         Vector coreSite = parser.getCoreSite();
         HashSet<Net> netsSet = parser.getNets() ;
-        HashSet<Net> specialnetsSet =parser.getSpecialNets () ;
+        HashSet<Net> specialnetsSet = parser.getSpecialNets () ;
         Hashtable <Integer , Track> tracks =  parser.getTracks();
 
-        placer = new Placer(tracks, dieArea, coreSite , macrosTable,  macrosSet, layersTable);
+        placer = new Placer(tracks, dieArea, coreSite , placedMacros,  definedMacros, layersTable);
         placer.addObsInGrid();
-        placer.addPinsInGrid();
+        Hashtable<Parser.Net.Item, Vector> pinLocationsInGrid = placer.addPinsInGrid();
+
+        Router router = new Router(netsSet, placedMacros, definedMacros, pinLocationsInGrid);
 
         controller = new Controller();
         dimensions[0] = placer.getxSize();
