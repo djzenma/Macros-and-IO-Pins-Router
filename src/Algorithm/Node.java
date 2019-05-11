@@ -1,6 +1,7 @@
 package Algorithm;
 
 import Parser.Pin;
+import java.util.ArrayList;
 
 /**
  * A node in the AStar search area grid
@@ -17,7 +18,7 @@ public class Node {
     private boolean isObstacle;
     private Node parent;
     private int z;
-    private Pin pin ;
+    public ArrayList <Pin> pin ;
     /**
      * @param x coordinate of this node
      * @param y coordinate of this node
@@ -28,6 +29,7 @@ public class Node {
         this.x = x;
         this.y = y;
         this.z = z;
+        pin = new ArrayList <Pin>();
         this.nodeType = NodeType.Empty;
     }
 

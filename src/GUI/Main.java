@@ -53,6 +53,7 @@ public class Main extends Application {
 
         placer = new Placer(tracks, dieArea, coreSite , macrosTable,  macrosSet, layersTable);
         placer.addObsInGrid();
+        placer.addPinsInGrid();
 
         controller = new Controller();
         dimensions[0] = placer.getxSize();
@@ -85,14 +86,14 @@ public class Main extends Application {
         //Algorithm.Main.main(controller);   // Take inputs and Run the A* Algorithm
         int[][][] grids = placer.draw();
 
-        for (int k = 0; k < placer.getzSize(); k++) {
+        for (int k = 1; k < placer.getzSize(); k++) {
             for (int j = 0; j < placer.getySize(); j++) {
                 for (int i = 0; i < placer.getxSize(); i++) {
                     System.out.print(grids[i][j][k]);
                 }
                 System.out.println("");
             }
-            System.out.println("Metal " + (k + 1));
+            System.out.println("Metal " + (k));
         }
 
 

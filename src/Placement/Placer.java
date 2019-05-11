@@ -9,7 +9,6 @@ import java.util.Hashtable;
 import static Algorithm.Node.*;
 
 public class Placer {
-
     private final Hashtable<String, Layer> layersTable;
     private Hashtable <Integer , Track> tracks;
     private Rect dieArea ;
@@ -96,10 +95,10 @@ public class Placer {
                 if(rect.getZ() != 0) {
                     Rect convertedRect = convertUnitToCell(rect, baseLocation);
                     int zKey = convertedRect.getZ();
-                    for (int i = (int) convertedRect.point1.x; i <= (int) convertedRect.point2.x; i++) {
-                        for (int j = (int) convertedRect.point1.y; j < (int) convertedRect.point2.y; j++) {
+                    for (int i = Math.min( (int) convertedRect.point2.x, (int) convertedRect.point1.x); i <= Math.max( (int) convertedRect.point2.x, (int) convertedRect.point1.x) ; i++) {
+                        for (int j = Math.min( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j <= Math.max( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j++) {
                             Node node = new Node(i, j, zKey);
-                            node.setObstacle(true);
+                            node.nodeType= NodeType.Obstacle ;
                             grids[i][j][zKey] = node;
                         }
                     }
@@ -118,16 +117,24 @@ public class Placer {
                 pin.rectList.forEach((rect) -> {
                     Rect convertedRect = convertUnitToCell(rect, baseLocation);
                     int zKey = convertedRect.getZ();
-                    for (int i = (int)convertedRect.point1.x; i<= (int)convertedRect.point2.x;i++){
-                        for (int j = (int)convertedRect.point1.y; j < (int)convertedRect.point2.y; j++){
-                            Node node = new Node(i, j, zKey);
-                            node.nodeType = NodeType.Pin;
-                            grids[i][j][zKey] = node;
+                    for (int i = Math.min( (int) convertedRect.point2.x, (int) convertedRect.point1.x); i <= Math.max( (int) convertedRect.point2.x, (int) convertedRect.point1.x) ; i++) {
+                        for (int j = Math.min( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j <= Math.max( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j++) {
+                            if(grids[i][j][zKey].nodeType == Node.NodeType.Pin){
+                                grids[i][j][zKey].pin.add(pin);
+                       
+                            }
+                            else {
+                                Node node = new Node(i, j, zKey);
+                                node.nodeType = NodeType.Pin;
+                                node.pin.add(pin);
+                                grids[i][j][zKey] = node;
+                            }
                         }
                     }
                 });
             });
         });
+             
     }
 
     public Rect convertUnitToCell(Rect rect, Vector baseLocation) {
@@ -172,6 +179,8 @@ public class Placer {
                             maze[i][j][k] = 0;
                             break;
                         case Pin:
+                            maze[i][j][k] = 2;
+                            break;
                         case Obstacle:
                             maze[i][j][k] = 1;
                             break;
