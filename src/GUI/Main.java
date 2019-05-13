@@ -54,7 +54,7 @@ public class Main extends Application {
 
         placer = new Placer(tracks, dieArea, coreSite , placedMacros,  definedMacros, layersTable);
         placer.addObsInGrid();
-        Hashtable<Parser.Net.Item, Vector> pinLocationsInGrid = placer.addPinsInGrid();
+        Hashtable<Net.Item, Vector> pinLocationsInGrid = placer.addPinsInGrid();
 
         Router router = new Router(netsSet, placedMacros, definedMacros, pinLocationsInGrid);
 

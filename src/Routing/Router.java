@@ -18,9 +18,9 @@ public class Router {
     private HashSet<Net> nets;
     private Hashtable<String, Macro> placedMacros;
     private Hashtable<String, Macro> definedMacros;
-    private Hashtable<Parser.Net.Item, Vector> pinLocations;
+    private Hashtable<Net.Item, Vector> pinLocations;
 
-    public Router(HashSet<Net> nets, Hashtable<String, Macro> placedMacros, Hashtable<String, Macro> definedMacros, Hashtable<Parser.Net.Item, Vector> pinLocations) {
+    public Router(HashSet<Net> nets, Hashtable<String, Macro> placedMacros, Hashtable<String, Macro> definedMacros, Hashtable<Net.Item, Vector> pinLocations) {
         this.nets = nets;
         this.placedMacros = placedMacros;
         this.definedMacros = definedMacros;
@@ -40,18 +40,19 @@ public class Router {
         }
 
 
-        nets.forEach((net) -> {
+        this.nets.forEach((net) -> {
             final boolean[] first = {true};
 
             net.getNet().forEach((item)-> {
                 Macro macro = placedMacros.get(item.compName);
+                //assert macro == null : "null location ya negm for " + item.pinName;
                 Vector baseLocation = macro.location;
 
                 Iterator<Pin> iterator = definedMacros.get(macro.name).pins.iterator();
                 final Pin[] pin = {null};
                 iterator.forEachRemaining(pinIter -> {
                     if(pinIter.name.equals(item.pinName)) {
-                        placeInGbox(pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
+                        placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
                     }
                 });
 
@@ -62,11 +63,11 @@ public class Router {
         });
     }
 
-    private void placeInGbox(Vector vector, boolean first) {
+    private void placeInGbox(Vector base, Vector offset, boolean first) {
         if(first)
-            this.grids[(int) vector.x / gboxSize ][(int) vector.y / gboxSize ][(int) vector.z].isSource = true;
+            this.grids[(int) (base.x + offset.x) / gboxSize ][(int) (base.y + offset.y) / gboxSize ][(int) offset.z].isSource = true;
         else {
-            this.grids[(int) vector.x / gboxSize ][(int) vector.y / gboxSize ][(int) vector.z].isTarget = true;
+            this.grids[(int) (base.x + offset.x) / gboxSize ][(int) (base.y + offset.y) / gboxSize ][(int) offset.z].isTarget = true;
         }
     }
 

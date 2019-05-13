@@ -108,8 +108,8 @@ public class Placer {
     }
 
 
-    public Hashtable<Parser.Net.Item, Vector> addPinsInGrid () {
-        Hashtable<Parser.Net.Item, Vector> pinLocations = new Hashtable<>();
+    public Hashtable<Net.Item, Vector> addPinsInGrid () {
+        Hashtable<Net.Item, Vector> pinLocations = new Hashtable<>();
 
         placedMacros.forEach((key, macro)-> {
             Macro macroDefinition =  definedMacros.get(macro.name);
@@ -129,7 +129,7 @@ public class Placer {
                                 node.nodeType = NodeType.Pin;
                                 pin.location = new Vector(i, j, zKey);
                                 node.pin.add(pin);
-                                pinLocations.put(new Parser.Net.Item(macro.name, pin.name), pin.location);
+                                pinLocations.put(new Net.Item(macro.name, pin.name), pin.location);
                                 grids[i][j][zKey] = node;
                             }
                         }
