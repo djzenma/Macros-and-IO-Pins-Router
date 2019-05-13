@@ -15,7 +15,7 @@ public class Router {
 
     private GBox[][][] grids;
 
-    private HashSet<Net> nets;
+    private HashSet<Net> nets;       // Set of all the nets blocks, each block contains the pins that need to be connected
     private Hashtable<String, Macro> placedMacros;
     private Hashtable<String, Macro> definedMacros;
     private Hashtable<Net.Item, Vector> pinLocations;
@@ -44,25 +44,18 @@ public class Router {
             final boolean[] first = {true};
 
             net.getNet().forEach((item)-> {
-                Iterator<Pin> iterator = null;
-                try {
-                    Macro macro = this.placedMacros.get(item.compName);
-                    //assert macro == null : "null location ya negm for " + item.pinName;
-                    Vector baseLocation = macro.location;
+                Macro macro = this.placedMacros.get(item.compName);
+                Vector baseLocation = macro.location;
+                Iterator<Pin> iterator = this.definedMacros.get(macro.name).pins.iterator();
 
-                    assert this.definedMacros.get(macro.name).pins.iterator() == null: "Error ya negm";
-                    iterator = this.definedMacros.get(macro.name).pins.iterator();
-                } catch (Exception e) {
-                    System.err.println("Item: " + item + " Net: " + net);
-                }
-                    final Pin[] pin = {null};
-                    iterator.forEachRemaining(pinIter -> {
-                        if (pinIter.name.equals(item.pinName)) {
-                            //placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
-                        }
-                    });
+                final Pin[] pin = {null};
+                iterator.forEachRemaining(pinIter -> {
+                    if (pinIter.name.equals(item.pinName)) {
+                        //placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
+                    }
+                });
 
-                    first[0] = false;
+                first[0] = false;
             });
         });
     }

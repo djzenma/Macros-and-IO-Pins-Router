@@ -44,23 +44,23 @@ public class Placer {
             if(track.direction == Track.X) {
                 if(track.number > xMax[0]) {
                     xMax[0] = track.number;
-                    this.cellWidth = track.step;
-                    this.xStart = track.start;
+                    cellWidth = track.step;
+                    xStart = track.start;
                 }
             }
             else {
                 if (track.number > yMax[0]) {
                     yMax[0] = track.number;
-                    this.cellHeight = track.step;
-                    this.yStart = track.start;
+                    cellHeight = track.step;
+                    yStart = track.start;
                 }
             }
         });
 
         // The maximum number of cells per layer
-        this.xSize = xMax[0] + 1;
-        this.ySize = yMax[0]+ 1;
-        this.zSize = tracks.size()+1;
+        xSize = xMax[0];
+        ySize = yMax[0];
+        zSize = tracks.size() + 1;     // Because we don't start from the 0 index
 
 
         // Calculating the ratio of every metal layer relative to the maximum one
@@ -206,6 +206,7 @@ public class Placer {
         return ySize;
     }
 
+    // The z size assumes you start from 1-index
     public int getzSize() {
         return zSize;
     }

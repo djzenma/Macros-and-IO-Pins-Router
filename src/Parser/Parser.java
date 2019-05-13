@@ -124,7 +124,7 @@ public class Parser {
      *  @return Hash Table with all the MACROS placed from the DEF File
      */
     public Hashtable<String, Macro> getPlacedMacros() {
-       Hashtable < String , Macro> macrosTable = new Hashtable<>();
+       Hashtable < String , Macro> macrosPlaced = new Hashtable<>();
 
        List<String> matches = this.getSection(COMPONENTS+SECTION_REGEX, Parser.DEF_EXT);
 
@@ -134,24 +134,24 @@ public class Parser {
        for(String component : comps) {
             String[] spaceDelimited = component.split("\\s");
             if (spaceDelimited.length == 11)
-                macrosTable.put(spaceDelimited[1], new Macro(spaceDelimited[2], new Vector(Integer.parseInt(spaceDelimited[6]), Integer.parseInt(spaceDelimited[7]))));
+                macrosPlaced.put(spaceDelimited[1], new Macro(spaceDelimited[2], new Vector(Integer.parseInt(spaceDelimited[6]), Integer.parseInt(spaceDelimited[7]))));
        }
 
-        macrosTable.put("PIN", new Macro("PIN", new Vector(0,0,0)));
+        macrosPlaced.put("PIN", new Macro("PIN", new Vector(0,0,0)));
 /*
        regexMatcher( "-.*\\n+\\s*\\+\\s+LAYER.+\\n\\s+\\+\\s+PLACED.*;", regexMatcher("PINS\\s+\\d+(.*\\n)+END\\s+PINS", this.defFile).get(0)).forEach((pinBlock) -> {
            String[] delimited = pinBlock.split("\\s");
-           macrosTable.put(delimited[1], new Macro("PIN", new Vector(Double.parseDouble(delimited[23]), Double.parseDouble(delimited[24]))));    // Base location
+           macrosPlaced.put(delimited[1], new Macro("PIN", new Vector(Double.parseDouble(delimited[23]), Double.parseDouble(delimited[24]))));    // Base location
        });
 */
-       return macrosTable ;
+       return macrosPlaced ;
     }
 
     /*
-     *  @return Set with all the Library MACROS defined in the LEF File
+     *  @return Hashtable with all the Library MACROS defined in the LEF File
      */
     public Hashtable getMacrosDefinitions(Hashtable<String, Layer> layersSet) {
-        Hashtable <String, Macro> macrosSet = new Hashtable<>();
+        Hashtable <String, Macro> macrosDefinitions = new Hashtable<>();
 
         List<String> lefMacros = this.getSection(MACRO_REGEX, Parser.LEF_EXT);  // All Macros
         // Iterate over all Macros
@@ -166,11 +166,11 @@ public class Parser {
             ArrayList<Pin> macroPins = getPins(allPins, layersSet);
             List<Rect> obs = getObs(s, layersSet);
 
-            macrosSet.put(macroName,new Macro(macroName, new Vector(0,0,0), macroPins, obs));
+            macrosDefinitions.put(macroName,new Macro(macroName, new Vector(0,0,0), macroPins, obs));
         });
 
+        // Placed Pins
         ArrayList<Pin> pinList = new ArrayList<Pin>();
-
         regexMatcher( "-.*\\n+\\s*\\+\\s+LAYER.+\\n\\s+\\+\\s+PLACED.*;", regexMatcher("PINS\\s+\\d+(.*\\n)+END\\s+PINS", this.defFile).get(0)).forEach((pinBlock) -> {
             String[] delimited = pinBlock.split("\\s");
             int z = Character.digit(delimited[9].toCharArray()[delimited[9].length() - 1], 10);
@@ -181,13 +181,13 @@ public class Parser {
             pinList.add(new Pin(rectList, delimited[1]));
 
         });
+        List<Rect> obsList = new ArrayList<Rect>(); // Empty OBS
+        macrosDefinitions.put("PIN", new Macro("PIN", new Vector(0, 0, 0), pinList, obsList));    // Pins rects
 
-        List<Rect> obsList = new ArrayList<Rect>();
-        macrosSet.put("PIN", new Macro("PIN", new Vector(0, 0, 0), pinList, obsList));    // Pins rects
-
-        return macrosSet;
+        return macrosDefinitions;
     }
 
+    // Helper Function to get a given Macro's pins
     private ArrayList<Pin> getPins(StringBuilder allPins, Hashtable<String, Layer> layersSet) {
         // Extract Each Pins separately from the PINS Block
         ArrayList<Pin> macroPins = new ArrayList<>();
@@ -204,7 +204,7 @@ public class Parser {
         return macroPins;
     }
 
-
+    // Helper Function to get a list of Rectangles
     private List<Rect> getRects(String port, Hashtable<String, Layer> layersSet){
         // Get each layer with its rectangles
         List<String> layers = regexMatcher("LAYER.+\\n(\\s+RECT.+)+", port);
