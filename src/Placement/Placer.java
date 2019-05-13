@@ -58,9 +58,9 @@ public class Placer {
         });
 
         // The maximum number of cells per layer
-        this.xSize = xMax[0];
-        this.ySize = yMax[0];
-        this.zSize = tracks.size();
+        this.xSize = xMax[0] + 1;
+        this.ySize = yMax[0]+ 1;
+        this.zSize = tracks.size()+1;
 
 
         // Calculating the ratio of every metal layer relative to the maximum one
