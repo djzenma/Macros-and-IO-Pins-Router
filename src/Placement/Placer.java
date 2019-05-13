@@ -116,12 +116,15 @@ public class Placer {
             Vector baseLocation = macro.location;
 
             macroDefinition.pins.forEach(pin -> {
+
                 pin.rectList.forEach((rect) -> {
                     Rect convertedRect = convertUnitToCell(rect, baseLocation);
                     int zKey = convertedRect.getZ();
+
                     for (int i = Math.min( (int) convertedRect.point2.x, (int) convertedRect.point1.x); i <= Math.max( (int) convertedRect.point2.x, (int) convertedRect.point1.x) ; i++) {
                         for (int j = Math.min( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j <= Math.max( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j++) {
                             if(grids[i][j][zKey].nodeType == Node.NodeType.Pin){
+                                pin.location = new Vector(i, j, zKey);
                                 grids[i][j][zKey].pin.add(pin);
                             }
                             else {
@@ -129,12 +132,14 @@ public class Placer {
                                 node.nodeType = NodeType.Pin;
                                 pin.location = new Vector(i, j, zKey);
                                 node.pin.add(pin);
-                                pinLocations.put(new Net.Item(macro.name, pin.name), pin.location);
                                 grids[i][j][zKey] = node;
                             }
+                            pinLocations.put(new Net.Item(key, pin.name), pin.location);
                         }
                     }
+
                 });
+
             });
         });
 

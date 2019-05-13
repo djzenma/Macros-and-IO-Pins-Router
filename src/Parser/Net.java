@@ -34,6 +34,13 @@ public class Net {
             this.compName = compName;
             this.pinName = pinName;
         }
+
+        public boolean equals(Object other) {
+            Item otherItem = (Item) other;
+            return this.pinName.equals(otherItem.pinName) && this.compName.equals(otherItem.compName);
+        }
+
+        public int hashCode() { return 0; }
     }
 
     public class SpecialItem{
