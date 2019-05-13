@@ -44,22 +44,26 @@ public class Router {
             final boolean[] first = {true};
 
             net.getNet().forEach((item)-> {
-                Macro macro = placedMacros.get(item.compName);
-                //assert macro == null : "null location ya negm for " + item.pinName;
-                Vector baseLocation = macro.location;
+                Iterator<Pin> iterator = null;
+                try {
+                    Macro macro = this.placedMacros.get(item.compName);
+                    //assert macro == null : "null location ya negm for " + item.pinName;
+                    Vector baseLocation = macro.location;
 
-                Iterator<Pin> iterator = definedMacros.get(macro.name).pins.iterator();
-                final Pin[] pin = {null};
-                iterator.forEachRemaining(pinIter -> {
-                    if(pinIter.name.equals(item.pinName)) {
-                        placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
-                    }
-                });
+                    assert this.definedMacros.get(macro.name).pins.iterator() == null: "Error ya negm";
+                    iterator = this.definedMacros.get(macro.name).pins.iterator();
+                } catch (Exception e) {
+                    System.err.println("Item: " + item + " Net: " + net);
+                }
+                    final Pin[] pin = {null};
+                    iterator.forEachRemaining(pinIter -> {
+                        if (pinIter.name.equals(item.pinName)) {
+                            //placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
+                        }
+                    });
 
-                first[0] = false;
+                    first[0] = false;
             });
-
-
         });
     }
 
