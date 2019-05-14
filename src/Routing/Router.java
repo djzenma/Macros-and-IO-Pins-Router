@@ -46,6 +46,7 @@ public class Router {
             net.getNet().forEach((item)-> {
                 // Get the macro's base location from the placed Macros Table
                 Macro macro = this.placedMacros.get(item.compName);
+                Placer.convertUnitToCellFromVector(macro.location);
                 Vector baseLocation = macro.location;
 
                 // Look up the pin item in its corresponding Macro from the defined Macros table

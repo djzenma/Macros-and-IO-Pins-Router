@@ -10,7 +10,7 @@ import static Algorithm.Node.*;
 
 public class Placer {
     private final Hashtable<String, Layer> layersTable;
-    private Hashtable <Integer , Track> tracks;
+    private static Hashtable <Integer , Track> tracks;
     private Rect dieArea ;
     private Vector coreSite ;
     private Hashtable<String,Macro> placedMacros;
@@ -20,7 +20,7 @@ public class Placer {
     public static int xSize, ySize, zSize;    // The number of cells per grid layer
     public static int xStart, yStart;         // Coordinates of the start of the grid
     public static int cellWidth, cellHeight;
-    private Hashtable<Integer, Integer> layersRatios;   // The ratio of every metal layer relative to the maximum one
+    private static Hashtable<Integer, Integer> layersRatios;   // The ratio of every metal layer relative to the maximum one
 
     public Placer (Hashtable <Integer , Track> tracks, Rect dieArea ,
                    Vector coreSite , Hashtable<String,Macro> placedMacros, Hashtable<String, Macro> definedMacros, Hashtable<String, Layer> layersTable)
@@ -147,7 +147,7 @@ public class Placer {
              
     }
 
-    public Rect convertUnitToCell(Rect rect, Vector baseLocation) {
+    private Rect convertUnitToCell(Rect rect, Vector baseLocation) {
         Vector one = new Vector((int) Math.floor((rect.point1.x + baseLocation.x - xStart)/cellWidth), (int) Math.floor((rect.point1.y + baseLocation.y - yStart)/cellHeight));
         Vector two = new Vector((int) Math.floor((rect.point2.x + baseLocation.x - xStart)/cellWidth), (int) Math.floor((rect.point2.y + baseLocation.y - yStart)/cellHeight));
 
@@ -157,7 +157,20 @@ public class Placer {
 
     }
 
-    private Rect legalizeIndexes(Rect rect, Integer zKey) {
+    public static Rect convertUnitToCellFromVector(Vector baseLocation) {
+        Vector vector = new Vector((int) Math.floor((baseLocation.x - xStart)/cellWidth), (int) Math.floor((baseLocation.y - yStart)/cellHeight));
+        Integer z = (int) baseLocation.z;
+
+        return legalizeIndexesFromVector(vector, z);
+
+    }
+
+    private static Rect legalizeIndexesFromVector(Vector vector, Integer z) {
+        return legalizeIndexes(new Rect(vector, vector), z);
+    }
+
+
+    private static Rect legalizeIndexes(Rect rect, Integer zKey) {
 
         int xStart = (int)rect.point1.x;
         int yStart = (int)rect.point1.y;
