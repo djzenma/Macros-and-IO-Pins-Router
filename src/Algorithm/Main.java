@@ -28,9 +28,10 @@ public class Main {
             GUI.Main.exit = true;
 
         // If first time, initialize the maze grid
-        if(GUI.Main.firstTime) {
+        if(GUI.Main.firstTimeInDetailedRouting || GUI.Main.globalRouting) {
             GUI.Main.maze = new Maze(dimensions[0], dimensions[1], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), new Node(targetCoords[0], targetCoords[1], targetCoords[2]));
-            GUI.Main.firstTime = false;
+            if(GUI.Main.firstTimeInDetailedRouting)
+                GUI.Main.firstTimeInDetailedRouting = false;
         }
         // Else, set the new source and target and check if valid
         else {
@@ -70,9 +71,9 @@ public class Main {
             System.out.println("Path not Found!");
         }
 
-
+        
         // make the last path into obstacles then repeat
-        if(!invalidCells) {
+        if(!invalidCells && !GUI.Main.globalRouting) {
             int[][] blocks = new int[path.size()][];
             //for (Node n: path) {
             //    System.out.println(n);
@@ -87,7 +88,6 @@ public class Main {
             }
             GUI.Main.maze.setObstacles(blocks);
         }
-
 
         //GUI.Main.controller.setPins(GUI.Main.maze.sourcesList, GUI.Main.maze.targetList);
         

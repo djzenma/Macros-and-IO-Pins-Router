@@ -33,7 +33,9 @@ public class Main extends Application {
     private Stage stage;
 
     public static int[] dimensions;
-    public static boolean firstTime = true;
+    public static boolean firstTimeInDetailedRouting = true;
+    public static boolean globalRouting = true;
+    
     public static boolean exit = false;
 
     public static Maze maze;
@@ -73,7 +75,7 @@ public class Main extends Application {
         controller.setMaze(maze, dimensions[0], dimensions[1], dimensions[2]);
 
         gridContainer = new GridPane();
-        firstTime = true;
+        firstTimeInDetailedRouting = true;
 
         router.printGbox();
         super.init();
