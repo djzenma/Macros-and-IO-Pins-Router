@@ -10,7 +10,7 @@ import static Algorithm.Node.*;
 
 public class Placer {
     private final Hashtable<String, Layer> layersTable;
-    private Hashtable <Integer , Track> tracks;
+    private static Hashtable <Integer , Track> tracks;
     private Rect dieArea ;
     private Vector coreSite ;
     private Hashtable<String,Macro> placedMacros;
@@ -20,7 +20,7 @@ public class Placer {
     public static int xSize, ySize, zSize;    // The number of cells per grid layer
     public static int xStart, yStart;         // Coordinates of the start of the grid
     public static int cellWidth, cellHeight;
-    private Hashtable<Integer, Integer> layersRatios;   // The ratio of every metal layer relative to the maximum one
+    private static Hashtable<Integer, Integer> layersRatios;   // The ratio of every metal layer relative to the maximum one
 
     public Placer (Hashtable <Integer , Track> tracks, Rect dieArea ,
                    Vector coreSite , Hashtable<String,Macro> placedMacros, Hashtable<String, Macro> definedMacros, Hashtable<String, Layer> layersTable)
@@ -44,23 +44,23 @@ public class Placer {
             if(track.direction == Track.X) {
                 if(track.number > xMax[0]) {
                     xMax[0] = track.number;
-                    this.cellWidth = track.step;
-                    this.xStart = track.start;
+                    cellWidth = track.step;
+                    xStart = track.start;
                 }
             }
             else {
                 if (track.number > yMax[0]) {
                     yMax[0] = track.number;
-                    this.cellHeight = track.step;
-                    this.yStart = track.start;
+                    cellHeight = track.step;
+                    yStart = track.start;
                 }
             }
         });
 
         // The maximum number of cells per layer
-        this.xSize = xMax[0];
-        this.ySize = yMax[0];
-        this.zSize = tracks.size();
+        xSize = xMax[0];
+        ySize = yMax[0];
+        zSize = tracks.size() + 1;     // Because we don't start from the 0 index
 
 
         // Calculating the ratio of every metal layer relative to the maximum one
@@ -116,12 +116,15 @@ public class Placer {
             Vector baseLocation = macro.location;
 
             macroDefinition.pins.forEach(pin -> {
+
                 pin.rectList.forEach((rect) -> {
                     Rect convertedRect = convertUnitToCell(rect, baseLocation);
                     int zKey = convertedRect.getZ();
+
                     for (int i = Math.min( (int) convertedRect.point2.x, (int) convertedRect.point1.x); i <= Math.max( (int) convertedRect.point2.x, (int) convertedRect.point1.x) ; i++) {
                         for (int j = Math.min( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j <= Math.max( (int) convertedRect.point2.y, (int) convertedRect.point1.y); j++) {
                             if(grids[i][j][zKey].nodeType == Node.NodeType.Pin){
+                                pin.location = new Vector(i, j, zKey);
                                 grids[i][j][zKey].pin.add(pin);
                             }
                             else {
@@ -129,12 +132,14 @@ public class Placer {
                                 node.nodeType = NodeType.Pin;
                                 pin.location = new Vector(i, j, zKey);
                                 node.pin.add(pin);
-                                pinLocations.put(new Net.Item(macro.name, pin.name), pin.location);
                                 grids[i][j][zKey] = node;
                             }
+                            pinLocations.put(new Net.Item(key, pin.name), pin.location);
                         }
                     }
+
                 });
+
             });
         });
 
@@ -142,7 +147,7 @@ public class Placer {
              
     }
 
-    public Rect convertUnitToCell(Rect rect, Vector baseLocation) {
+    private Rect convertUnitToCell(Rect rect, Vector baseLocation) {
         Vector one = new Vector((int) Math.floor((rect.point1.x + baseLocation.x - xStart)/cellWidth), (int) Math.floor((rect.point1.y + baseLocation.y - yStart)/cellHeight));
         Vector two = new Vector((int) Math.floor((rect.point2.x + baseLocation.x - xStart)/cellWidth), (int) Math.floor((rect.point2.y + baseLocation.y - yStart)/cellHeight));
 
@@ -152,7 +157,20 @@ public class Placer {
 
     }
 
-    private Rect legalizeIndexes(Rect rect, Integer zKey) {
+    public static Rect convertUnitToCellFromVector(Vector baseLocation) {
+        Vector vector = new Vector((int) Math.floor((baseLocation.x - xStart)/cellWidth), (int) Math.floor((baseLocation.y - yStart)/cellHeight));
+        Integer z = (int) baseLocation.z;
+
+        return legalizeIndexesFromVector(vector, z);
+
+    }
+
+    private static Rect legalizeIndexesFromVector(Vector vector, Integer z) {
+        return legalizeIndexes(new Rect(vector, vector), z);
+    }
+
+
+    private static Rect legalizeIndexes(Rect rect, Integer zKey) {
 
         int xStart = (int)rect.point1.x;
         int yStart = (int)rect.point1.y;
@@ -206,6 +224,7 @@ public class Placer {
         return ySize;
     }
 
+    // The z size assumes you start from 1-index
     public int getzSize() {
         return zSize;
     }

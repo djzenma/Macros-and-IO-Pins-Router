@@ -15,7 +15,7 @@ public class Router {
 
     private GBox[][][] grids;
 
-    private HashSet<Net> nets;
+    private HashSet<Net> nets;       // Set of all the nets blocks, each block contains the pins that need to be connected
     private Hashtable<String, Macro> placedMacros;
     private Hashtable<String, Macro> definedMacros;
     private Hashtable<Net.Item, Vector> pinLocations;
@@ -33,7 +33,7 @@ public class Router {
         grids = new GBox[xGridSize][yGridSize][Placer.zSize];
         for (int i = 0; i < xGridSize; i++) {
             for (int j = 0; j < yGridSize; j++) {
-                for (int k = 0; k < Placer.zSize; k++) {
+                for (int k = 1; k < Placer.zSize; k++) {
                     grids[i][j][k] = new GBox(new Vector(i,j,k), false, false, false);
                 }
             }
@@ -41,32 +41,51 @@ public class Router {
 
 
         this.nets.forEach((net) -> {
-            final boolean[] first = {true};
+            final boolean[] firstPin = {true};
 
             net.getNet().forEach((item)-> {
+<<<<<<< HEAD
                 Macro macro = placedMacros.get(item.compName);
                 String Here= "";
                 //assert macro == null : "null location ya negm for " + item.pinName;
+=======
+                // Get the macro's base location from the placed Macros Table
+                Macro macro = this.placedMacros.get(item.compName);
+                Placer.convertUnitToCellFromVector(macro.location);
+>>>>>>> bbe246fa950b82f46a12ce6361d544c332016c1c
                 Vector baseLocation = macro.location;
 
-                Iterator<Pin> iterator = definedMacros.get(macro.name).pins.iterator();
-                final Pin[] pin = {null};
+                // Look up the pin item in its corresponding Macro from the defined Macros table
+                Iterator<Pin> iterator = this.definedMacros.get(macro.name).pins.iterator();
                 iterator.forEachRemaining(pinIter -> {
+<<<<<<< HEAD
                     if(pinIter.name.equals(item.pinName)) {
                        // placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
+=======
+                    if (pinIter.name.equals(item.pinName)) {
+                        Vector offset = this.pinLocations.get(item);
+                        this.pinLocations.forEach((keystr, pinLocation) -> {
+                            if(keystr.compName.equals(item.compName) && keystr.pinName.equals(item.pinName))
+                            System.out.println(keystr.compName + " " + keystr.pinName + " vector: " + pinLocation);
+                        });
+                        placeInGbox(baseLocation, offset, firstPin[0]);     // Get location of the pin in the placed grids
+>>>>>>> bbe246fa950b82f46a12ce6361d544c332016c1c
                     }
                 });
 
-                first[0] = false;
+                firstPin[0] = false;
             });
-
-
         });
     }
 
+<<<<<<< HEAD
     private void placeInGbox(Vector base, Vector offset, boolean first) {
         if(first)
         {
+=======
+    private void placeInGbox(Vector base, Vector offset, boolean firstPin) {
+        if(firstPin)
+>>>>>>> bbe246fa950b82f46a12ce6361d544c332016c1c
             this.grids[(int) (base.x + offset.x) / gboxSize ][(int) (base.y + offset.y) / gboxSize ][(int) offset.z].isSource = true;
         }
         else {

@@ -32,7 +32,7 @@ public class Main extends Application {
     public static Scanner scanner;
     private Stage stage;
 
-    public static int[] dimensions = new int[3];
+    public static int[] dimensions;
     public static boolean firstTime = true;
     public static boolean exit = false;
 
@@ -58,19 +58,18 @@ public class Main extends Application {
 
         Router router = new Router(netsSet, placedMacros, definedMacros, pinLocationsInGrid);
 
-        controller = new Controller();
-        dimensions[0] = placer.getxSize();
-        dimensions[1] = placer.getySize();
-        dimensions[2] = placer.getzSize();
-
+        // Initialization
         int[][][] maze = new int[placer.getxSize()][placer.getySize()][placer.getzSize()];
         for (int i = 0; i < placer.getxSize(); i++) {
             for (int j = 0; j < placer.getySize(); j++) {
-                for (int k = 0; k < placer.getzSize(); k++) {
+                for (int k = 1; k < placer.getzSize(); k++) {
                     maze[i][j][k] = 0;
                 }
             }
         }
+
+        dimensions = new int[]{placer.getxSize(), placer.getySize(), placer.getzSize()};
+        controller = new Controller();
         controller.setMaze(maze, dimensions[0], dimensions[1], dimensions[2]);
 
         gridContainer = new GridPane();
