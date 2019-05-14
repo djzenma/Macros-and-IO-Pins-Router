@@ -27,7 +27,7 @@ import java.util.*;
  *  The Main GUI Class, it waits until the Algorihtm's Main finishes execution and the proceeds with its own execution
  */
 public class Main extends Application {
-    private static Controller controller;
+    public static Controller controller;
     private static GridPane gridContainer;
     public static Scanner scanner;
     private Stage stage;
@@ -56,17 +56,17 @@ public class Main extends Application {
         placer.addObsInGrid();
         Hashtable<Net.Item, Vector> pinLocationsInGrid = placer.addPinsInGrid();
 
-        Router router = new Router(netsSet, placedMacros, definedMacros, pinLocationsInGrid);
-
         // Initialization
-        int[][][] maze = new int[placer.getxSize()][placer.getySize()][placer.getzSize()];
-        for (int i = 0; i < placer.getxSize(); i++) {
-            for (int j = 0; j < placer.getySize(); j++) {
+        int[][][] maze = new int[Router.xGridSize][Router.yGridSize][placer.getzSize()];    // TODO:: Make it placer.size when detailed routing
+        for (int i = 0; i < Router.xGridSize; i++) {
+            for (int j = 0; j < Router.yGridSize; j++) {
                 for (int k = 1; k < placer.getzSize(); k++) {
                     maze[i][j][k] = 0;
                 }
             }
         }
+        
+        Router router = new Router(netsSet, placedMacros, definedMacros, pinLocationsInGrid, tracks);
 
         dimensions = new int[]{placer.getxSize(), placer.getySize(), placer.getzSize()};
         controller = new Controller();
@@ -75,7 +75,7 @@ public class Main extends Application {
         gridContainer = new GridPane();
         firstTime = true;
 
-
+        router.printGbox();
         super.init();
     }
 
@@ -88,7 +88,7 @@ public class Main extends Application {
         //Algorithm.Main.main(controller);   // Take inputs and Run the A* Algorithm
         int[][][] grids = placer.draw();
 
-        for (int k = 1; k < placer.getzSize(); k++) {
+        /*for (int k = 1; k < placer.getzSize(); k++) {
             for (int j = 0; j < placer.getySize(); j++) {
                 for (int i = 0; i < placer.getxSize(); i++) {
                     System.out.print(grids[i][j][k]);
@@ -96,7 +96,7 @@ public class Main extends Application {
                 System.out.println("");
             }
             System.out.println("Metal " + (k));
-        }
+        }*/
 
 
         gridContainer = updateUI();

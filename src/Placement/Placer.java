@@ -157,16 +157,20 @@ public class Placer {
 
     }
 
-    public static Rect convertUnitToCellFromVector(Vector baseLocation) {
+    public static Vector convertUnitToCellFromVector(Vector baseLocation , int gboxSize) {
         Vector vector = new Vector((int) Math.floor((baseLocation.x - xStart)/cellWidth), (int) Math.floor((baseLocation.y - yStart)/cellHeight));
         Integer z = (int) baseLocation.z;
 
-        return legalizeIndexesFromVector(vector, z);
+        return legalizeIndexesFromVector(vector, z , gboxSize);
 
     }
 
-    private static Rect legalizeIndexesFromVector(Vector vector, Integer z) {
-        return legalizeIndexes(new Rect(vector, vector), z);
+    private static Vector legalizeIndexesFromVector(Vector vector, Integer z, int gboxSize ) {        
+        int x= (int)vector.x/gboxSize;
+        int y= (int)vector.y/gboxSize;
+            
+       
+        return new Vector(x,y);
     }
 
 

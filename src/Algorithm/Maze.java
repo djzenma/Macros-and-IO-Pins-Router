@@ -178,23 +178,8 @@ public class Maze {
 
     /** Prints the new Path in the Grid*/
     public String printPath(List<Node> path) {
-        int val;
         for (Node node : path) {
-            switch (node.getZ()) {
-                case AStar.M1:
-                    val = M1_CELL;
-                    break;
-                case AStar.M2:
-                    val = M2_CELL;
-                    break;
-                case AStar.M3:
-                    val = M3_CELL;
-                    break;
-                default:
-                    val = 0;
-                    break;
-            }
-            this.maze[node.getX()][node.getY()][node.getZ()] = val;
+            this.maze[node.getX()][node.getY()][node.getZ()] = node.getZ();
         }
         return this.print();
     }

@@ -30,6 +30,7 @@ public class Node {
         this.y = y;
         this.z = z;
         pin = new ArrayList <Pin>();
+        this.isObstacle = false;
         this.nodeType = NodeType.Empty;
     }
 
@@ -131,8 +132,9 @@ public class Node {
     }
 
     public void setObstacle(boolean isBlock) {
-        this.isObstacle = true;
-        this.nodeType = NodeType.Obstacle;
+        this.isObstacle = isBlock;
+        if(isBlock)
+            this.nodeType = NodeType.Obstacle;
     }
 
     public int getX() {

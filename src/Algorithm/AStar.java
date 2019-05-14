@@ -1,5 +1,8 @@
 package Algorithm;
 
+import Parser.Track;
+import Placement.Placer;
+import Routing.Router;
 import java.util.*;
 
 
@@ -7,16 +10,10 @@ import java.util.*;
  * The actual AStar Algorithm Class
  */
 public class AStar {
-    public static final int M1 = 0;
-    public static final int M2 = 1;
-    public static final int M3 = 2;
-
-    private static int M1_COST = 1;
-    private static int M2_COST = 5;
-    private static int M3_COST = 10;
-
-    private static int M1_M2_COST = 60;     // Cost Of passing from M1 to M2 or vice versa
-    private static int M2_M3_COST = 100;    // Cost Of passing from M2 to M3 or vice versa
+    private static int HV_COST = 1;
+ 
+    private static int UP_COST = 60;        // Cost Of passing from M2 to M3 or vice versa
+    private static int DOWN_COST = 10;
 
     private final int height;
     private final int cols;
@@ -157,10 +154,10 @@ public class AStar {
      * @param currentNode
      */
     private void addAdjacentNodes(Node currentNode) {
-        if(currentNode.getZ() == M1 || currentNode.getZ() == M3) {
+        if(Router.tracks.get(currentNode.getZ()).direction == Track.X) {
             this.addYZPlane(currentNode);
         }
-        else {  // is Metal 2
+        else {  // is a vertical Metal
             this.addXZPlanePos(currentNode);
             this.addXZPlaneNeg(currentNode);
         }
@@ -176,7 +173,7 @@ public class AStar {
 
         int lowerRow = x + 1;
         if (lowerRow < this.rows) {  // Check row down
-            this.checkNode(currentNode, lowerRow, y, M2, this.getM2Cost());
+            this.checkNode(currentNode, lowerRow, y, z, this.getHVCost());
         }
         if (currentNode.getZ() - 1 >= 0) {   // Check down
             this.checkLevelDown(currentNode);
@@ -196,7 +193,7 @@ public class AStar {
 
         int upperRow = x - 1;
         if (upperRow >= 0) {    // Check a row up
-            this.checkNode(currentNode, upperRow, y, M2, this.getM2Cost());
+            this.checkNode(currentNode, upperRow, y, z, this.getHVCost());
         }
         if (currentNode.getZ() - 1 >= 0) {   // Check down
             this.checkLevelDown(currentNode);
@@ -225,19 +222,11 @@ public class AStar {
     }
 
 
-    /** Checks a Metal Level Higher
+    /** Calculates the cost of going to a Metal Level Higher
      * @param currentNode
      */
     private void checkLevelUp(Node currentNode) {
-        int cost;
-        if(currentNode.getZ() == M1)
-            cost = getM1M2Cost();
-        else if(currentNode.getZ() == M2)
-            cost = getM2M3Cost();
-        else {
-            cost = 100;
-            System.out.println("Logic Error: It went Up on a Metal 3");
-        }
+        int cost = getUpCost();
         this.checkNode(currentNode, currentNode.getX(), currentNode.getY(), currentNode.getZ()+1, cost);
     }
 
@@ -245,15 +234,7 @@ public class AStar {
      * @param currentNode
      */
     private void checkLevelDown(Node currentNode) {
-        int cost;
-        if(currentNode.getZ() == M2)
-            cost = getM1M2Cost();
-        else if(currentNode.getZ() == M3)
-            cost = getM2M3Cost();
-        else {
-            cost = 100;
-            System.out.println("Logic Error: It went Up on a Metal 3");
-        }
+        int cost = getDownCost();
         this.checkNode(currentNode, currentNode.getX(), currentNode.getY(), currentNode.getZ()-1, cost);
     }
 
@@ -261,15 +242,7 @@ public class AStar {
      * @param currentNode
      */
     private void checkLevelLeft(Node currentNode) {
-        int cost;
-        if(currentNode.getZ() == M1)
-            cost = getM1Cost();
-        else if(currentNode.getZ() == M3)
-            cost = getM3Cost();
-        else {
-            cost = 100;
-            System.out.println("Logic Error: It went left on a Metal 2");
-        }
+        int cost = getHVCost();
         this.checkNode(currentNode, currentNode.getX(), currentNode.getY() - 1, currentNode.getZ(), cost);
     }
 
@@ -277,15 +250,7 @@ public class AStar {
      * @param currentNode
      */
     private void checkLevelRight(Node currentNode) {
-        int cost;
-        if(currentNode.getZ() == M1)
-            cost = getM1Cost();
-        else if(currentNode.getZ() == M3)
-            cost = getM3Cost();
-        else {
-            cost = 100;
-            System.out.println("Logic Error: It went right on a Metal 2");
-        }
+        int cost = getHVCost();
         this.checkNode(currentNode, currentNode.getX(), currentNode.getY() + 1, currentNode.getZ(), cost);
     }
 
@@ -390,44 +355,16 @@ public class AStar {
     }
 
 
-    public int getM1Cost() {
-        return M1_COST;
+    public int getHVCost() {
+        return HV_COST;
     }
-
-    public void setM1Cost(int m1Cost) {
-        M1_COST = m1Cost;
+    
+    public static int getUpCost() {
+        return UP_COST;
     }
-
-    public int getM2Cost() {
-        return M2_COST;
-    }
-
-    public void setM2Cost(int m2Cost) {
-        M2_COST = m2Cost;
-    }
-
-    public int getM3Cost() {
-        return M3_COST;
-    }
-
-    public void setM3Cost(int m3Cost) {
-        M3_COST = m3Cost;
-    }
-
-    public static int getM1M2Cost() {
-        return M1_M2_COST;
-    }
-
-    public static void setM1M2Cost(int m1M2Cost) {
-        M1_M2_COST = m1M2Cost;
-    }
-
-    public static int getM2M3Cost() {
-        return M2_M3_COST;
-    }
-
-    public static void setM2M3Cost(int m2M3Cost) {
-        M2_M3_COST = m2M3Cost;
+    
+    public static int getDownCost() {
+        return DOWN_COST;
     }
 
     public long getCpuTime() {
