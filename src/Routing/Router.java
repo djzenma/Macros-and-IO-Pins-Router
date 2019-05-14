@@ -44,24 +44,13 @@ public class Router {
             final boolean[] firstPin = {true};
 
             net.getNet().forEach((item)-> {
-<<<<<<< HEAD
-                Macro macro = placedMacros.get(item.compName);
-                String Here= "";
-                //assert macro == null : "null location ya negm for " + item.pinName;
-=======
                 // Get the macro's base location from the placed Macros Table
                 Macro macro = this.placedMacros.get(item.compName);
-                Placer.convertUnitToCellFromVector(macro.location);
->>>>>>> bbe246fa950b82f46a12ce6361d544c332016c1c
                 Vector baseLocation = macro.location;
 
                 // Look up the pin item in its corresponding Macro from the defined Macros table
                 Iterator<Pin> iterator = this.definedMacros.get(macro.name).pins.iterator();
                 iterator.forEachRemaining(pinIter -> {
-<<<<<<< HEAD
-                    if(pinIter.name.equals(item.pinName)) {
-                       // placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
-=======
                     if (pinIter.name.equals(item.pinName)) {
                         Vector offset = this.pinLocations.get(item);
                         this.pinLocations.forEach((keystr, pinLocation) -> {
@@ -69,7 +58,6 @@ public class Router {
                             System.out.println(keystr.compName + " " + keystr.pinName + " vector: " + pinLocation);
                         });
                         placeInGbox(baseLocation, offset, firstPin[0]);     // Get location of the pin in the placed grids
->>>>>>> bbe246fa950b82f46a12ce6361d544c332016c1c
                     }
                 });
 
@@ -78,16 +66,9 @@ public class Router {
         });
     }
 
-<<<<<<< HEAD
-    private void placeInGbox(Vector base, Vector offset, boolean first) {
-        if(first)
-        {
-=======
     private void placeInGbox(Vector base, Vector offset, boolean firstPin) {
         if(firstPin)
->>>>>>> bbe246fa950b82f46a12ce6361d544c332016c1c
             this.grids[(int) (base.x + offset.x) / gboxSize ][(int) (base.y + offset.y) / gboxSize ][(int) offset.z].isSource = true;
-        }
         else {
             this.grids[(int) (base.x + offset.x) / gboxSize ][(int) (base.y + offset.y) / gboxSize ][(int) offset.z].isTarget = true;
         }
