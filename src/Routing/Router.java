@@ -45,6 +45,7 @@ public class Router {
 
             net.getNet().forEach((item)-> {
                 Macro macro = placedMacros.get(item.compName);
+                String Here= "";
                 //assert macro == null : "null location ya negm for " + item.pinName;
                 Vector baseLocation = macro.location;
 
@@ -52,7 +53,7 @@ public class Router {
                 final Pin[] pin = {null};
                 iterator.forEachRemaining(pinIter -> {
                     if(pinIter.name.equals(item.pinName)) {
-                        placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
+                       // placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
                     }
                 });
 
@@ -65,7 +66,9 @@ public class Router {
 
     private void placeInGbox(Vector base, Vector offset, boolean first) {
         if(first)
+        {
             this.grids[(int) (base.x + offset.x) / gboxSize ][(int) (base.y + offset.y) / gboxSize ][(int) offset.z].isSource = true;
+        }
         else {
             this.grids[(int) (base.x + offset.x) / gboxSize ][(int) (base.y + offset.y) / gboxSize ][(int) offset.z].isTarget = true;
         }
