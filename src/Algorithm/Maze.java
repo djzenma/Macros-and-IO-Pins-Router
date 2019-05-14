@@ -81,14 +81,12 @@ public class Maze {
      * @throws Exception in case the target is already occupied
      */
     public void setTarget(int x, int y, int z) throws Exception {
-        if(this.aStar.isObstacle(new Node(x,y,z)))
-            throw new Exception("Target cell in a node that is already occupied!");
-        else {
+        
             this.maze[x][y][z] = TARGET_CELL;
             this.target = new Node(x, y, z);
             this.target.setObstacle(false);
             this.aStar.setFinalNode(this.target);
-        }
+        
     }
 
     public Node getSource() {

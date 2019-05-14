@@ -88,7 +88,7 @@ public class AStar {
     /**
      * @param blocksArray coordinates of the obstacles to be placed
      */
-    public void setBlocks(int[][] blocksArray) {
+    public void setBlocks(int[][] blocksArray ) {
         for (int[] aBlocksArray : blocksArray) {
             int x = aBlocksArray[0];
             int y = aBlocksArray[1];
@@ -96,6 +96,19 @@ public class AStar {
             this.setObstacle(x, y, z);
         }
     }
+    
+    public void setTargetBlocks(int[][] targetsArray ) {
+        for (int[] aBlocksArray : targetsArray) {
+            int x = aBlocksArray[0];
+            int y = aBlocksArray[1];
+            int z = aBlocksArray[2];
+            this.setFinalNode(new Node(x,y,z));
+        }
+    }
+    
+    
+    
+    
 
     public void getBlocks() {
         for (Node[][] nodeAr2 : this.searchArea) {
@@ -154,7 +167,7 @@ public class AStar {
      * @param currentNode
      */
     private void addAdjacentNodes(Node currentNode) {
-        if(Router.tracks.get(currentNode.getZ()).direction == Track.X) {
+        if(Router.tracks.get(currentNode.getZ() + 1).direction == Track.X) {
             this.addYZPlane(currentNode);
         }
         else {  // is a vertical Metal
@@ -299,7 +312,8 @@ public class AStar {
     private void setObstacle(int x, int y, int z) {
         this.searchArea[x][y][z].setObstacle(true);
     }
-
+   
+     
     /**
      * @param node input node
      * @return true of the node is an obstacle, false otherwise.

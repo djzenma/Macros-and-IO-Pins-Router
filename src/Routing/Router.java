@@ -15,6 +15,7 @@ public class Router {
     public static int xGridSize;
     public static int yGridSize;
     int[] targetCoords = null;
+    List <Node> path = null ;
 
 
     private GBox[][][] grids;
@@ -78,7 +79,17 @@ public class Router {
             this.grids[(int) (legalizedOffset.x) ][(int) (legalizedOffset.y)][(int) offset.z].isSource = true;
             int[] dimensions = new int[]{this.xGridSize, this.yGridSize, Placer.zSize};
             int[] sourceCoords = new int[]{ (int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
-            List <Node> path = Algorithm.Main.main(dimensions, sourceCoords, targetCoords);
+            if (path != null && path.size() != 0)
+            {
+                Node target = getNearest (path ,sourceCoords );
+                targetCoords =  new int[]{ (int) target.getX(), (int) target.getY(), (int)target.getZ()};
+                path = Algorithm.Main.main(dimensions, sourceCoords, targetCoords);
+            }
+            else
+                path = Algorithm.Main.main(dimensions, sourceCoords, targetCoords);
+                
+                
+            
             setPath (path);
         }
     }
@@ -93,7 +104,7 @@ public class Router {
     
     public void printGbox ()
     {
-        for (int z= 1 ;z <= Placer.zSize ;z++)
+        for (int z= 1 ;z < Placer.zSize ;z++)
         {
             System.out.println("Metal " + (z));
             
@@ -123,9 +134,28 @@ public class Router {
     {
         for (Node n : path)
         {
-            grids[n.getX()][n.getY()][n.getZ()].isPath = true ;
+            grids[n.getX()][n.getY()][n.getZ() + 1].isPath = true ;
         }
         
         
+    }
+    
+    private Node getNearest (List <Node> path ,int[] sourceCoords )
+    {
+        int min = Integer.MAX_VALUE;
+        Node minNode = null ;
+        int dist ;
+        for (Node n : path)
+        {
+            dist = (int) Math.sqrt(Math.pow(sourceCoords[0]-n.getX(), 2)+ Math.pow(sourceCoords[1]-n.getY(), 2) + Math.pow(sourceCoords[2]-n.getZ(), 2) );
+            if (dist < min)
+            {
+                
+                min = dist ;
+                minNode = n ;
+            }
+        }
+        
+       return minNode;     
     }
 }

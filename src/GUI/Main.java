@@ -99,7 +99,7 @@ public class Main extends Application {
         }*/
 
 
-        gridContainer = updateUI();
+        //gridContainer = updateUI();
 
         primaryStage.setScene(new Scene(gridContainer, 2048, 1024));
         primaryStage.show();
