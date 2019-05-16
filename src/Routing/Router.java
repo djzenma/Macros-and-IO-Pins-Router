@@ -104,15 +104,17 @@ public class Router {
             int[] sourceCoords = new int[]{ (int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
             if (path != null && path.size() != 0)
             {
+                
                 List <Node> tested = new ArrayList ();
+                List <Node> pathTemp  = new ArrayList ();
                 do {
-                    Node target = getNearest (path ,sourceCoords , tested ); // TODO:: add to the path all the net block privious paths
+                    Node target = getNearest (path, sourceCoords , tested ); // TODO:: add to the path all the net block privious paths
                     targetCoords =  new int[]{ (int) target.getX(), (int) target.getY(), (int)target.getZ()};
-                    path = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
+                    pathTemp = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
                     tested.add(target);
-                } while (path.size() == 0 && tested.size() != path.size());
+                } while (pathTemp.size() == 0 && tested.size() != path.size());
                 
-                
+                path = pathTemp ;
             }
             else
                 path = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
