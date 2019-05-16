@@ -3,6 +3,7 @@ package Algorithm;
 
 
 import GUI.Controller;
+import Parser.Vector;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class Main {
     /**
      * @param controller: Interface between the GUI Main class and this Algorithm Main
      */
-    public static List<Node> main(int dimensions[], int[] sourceCoords, int[] targetCoords ) {
+    public static List<Node> main(int dimensions[], int[] sourceCoords, int[] targetCoords, List<Vector> obsLocations) {
 
         String cmd;
         List<Node> path = new ArrayList<>();
@@ -29,7 +30,9 @@ public class Main {
 
         // If first time, initialize the maze grid
         if(GUI.Main.firstTimeInDetailedRouting || GUI.Main.globalRouting) {
-            GUI.Main.maze = new Maze(dimensions[0], dimensions[1], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), new Node(targetCoords[0], targetCoords[1], targetCoords[2]));
+            GUI.Main.maze = new Maze(dimensions[0], dimensions[1], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), 
+                    new Node(targetCoords[0], targetCoords[1], targetCoords[2]),
+                    obsLocations);
             if(GUI.Main.firstTimeInDetailedRouting)
                 GUI.Main.firstTimeInDetailedRouting = false;
         }

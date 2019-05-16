@@ -13,11 +13,11 @@ public class Node {
     private int g;
     private int f;
     private int h;
-    private int x;
-    private int y;
+    
+    public int x, y, z;
+    
     private boolean isObstacle;
     private Node parent;
-    private int z;
     public ArrayList <Pin> pin ;
     /**
      * @param x coordinate of this node

@@ -3,6 +3,7 @@ package Routing;
 import Algorithm.Node;
 import Parser.*;
 import Placement.Placer;
+import java.util.ArrayList;
 
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -25,13 +26,22 @@ public class Router {
     private Hashtable<String, Macro> definedMacros;
     private Hashtable<Net.Item, Vector> pinLocations;
     public static Hashtable <Integer , Track> tracks;
+    private List<Vector> legalizedObsLocations;
+    
 
-    public Router(HashSet<Net> nets, Hashtable<String, Macro> placedMacros, Hashtable<String, Macro> definedMacros, Hashtable<Net.Item, Vector> pinLocations, Hashtable <Integer , Track> tracks) {
+    public Router(HashSet<Net> nets, Hashtable<String, Macro> placedMacros, 
+            Hashtable<String, Macro> definedMacros, Hashtable<Net.Item, Vector> pinLocations, 
+            Hashtable <Integer , Track> tracks, List<Vector> obsLocations) {
         this.nets = nets;
         this.placedMacros = placedMacros;
         this.definedMacros = definedMacros;
         this.pinLocations = pinLocations;
         this.tracks = tracks;
+        this.legalizedObsLocations = new ArrayList<>();
+        
+        for( Vector v: obsLocations) {
+            this.legalizedObsLocations.add(legalizeVector(v));
+        }
 
         xGridSize = Placer.xSize / gboxSize;
         yGridSize = Placer.ySize / gboxSize;
@@ -41,17 +51,28 @@ public class Router {
         for (int i = 0; i < xGridSize; i++) {
             for (int j = 0; j < yGridSize; j++) {
                 for (int k = 1; k < Placer.zSize; k++) {
-                    grids[i][j][k] = new GBox(new Vector(i,j,k), false, false, false);
+                    grids[i][j][k] = new GBox(new Vector(i,j,k), false, false, false, false);
                 }
             }
         }
 
-
-        this.nets.forEach((net) -> {
+        placeObs();        
+        globallyRoute();
+    }
+    
+    private void placeObs() {
+        this.legalizedObsLocations.forEach((obsVector) -> {
+            this.grids[(int) (obsVector.x)  ][(int) ( obsVector.y)  ][(int) obsVector.z].isObs = true;
+        });
+    }
+    
+    
+    private void globallyRoute() {
+         this.nets.forEach((net) -> { //pass by every net
             final boolean[] firstPin = {true};
             targetCoords = null ;
 
-            net.getNet().forEach((item)-> {
+            net.getNet().forEach((item)-> { // pass by ever item in net 
                 // Get the macro's base location from the placed Macros Table
                 Macro macro = this.placedMacros.get(item.compName);
 
@@ -59,9 +80,8 @@ public class Router {
                 Iterator<Pin> iterator = this.definedMacros.get(macro.name).pins.iterator();
                 iterator.forEachRemaining(pinIter -> {
                     if (pinIter.name.equals(item.pinName)) {
-                        Vector offset = this.pinLocations.get(item);
-                        placeInGbox( offset, firstPin[0]);     // Get location of the pin in the placed grids
-                        
+                        Vector pinLocation = this.pinLocations.get(item);
+                        routeGbox (pinLocation, firstPin[0]);
                     }
                 });
 
@@ -69,9 +89,11 @@ public class Router {
             });
         });
     }
-
-    private void placeInGbox(Vector offset, boolean firstPin) {
-        Vector legalizedOffset = new Vector((int)Math.floor(offset.x/gboxSize) , (int)Math.floor(offset.y/gboxSize) , offset.z);
+    
+    
+    
+    private void routeGbox (Vector offset, boolean firstPin) {
+        Vector legalizedOffset = legalizeVector(offset);
         if(firstPin) {
             this.grids[(int) (legalizedOffset.x)  ][(int) ( legalizedOffset.y)  ][(int) offset.z].isTarget = true;
             targetCoords = new int[]{(int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
@@ -82,23 +104,29 @@ public class Router {
             int[] sourceCoords = new int[]{ (int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
             if (path != null && path.size() != 0)
             {
-                Node target = getNearest (path ,sourceCoords );
-                targetCoords =  new int[]{ (int) target.getX(), (int) target.getY(), (int)target.getZ()};
-                path = Algorithm.Main.main(dimensions, sourceCoords, targetCoords);
+                List <Node> tested = new ArrayList ();
+                do {
+                    Node target = getNearest (path ,sourceCoords , tested ); // TODO:: add to the path all the net block privious paths
+                    targetCoords =  new int[]{ (int) target.getX(), (int) target.getY(), (int)target.getZ()};
+                    path = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
+                    tested.add(target);
+                } while (path.size() == 0 && tested.size() != path.size());
+                
+                
             }
             else
-                path = Algorithm.Main.main(dimensions, sourceCoords, targetCoords);
+                path = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
                 
                 
             
             setPath (path);
         }
     }
-    
-    
 
     
-    
+    private Vector legalizeVector(Vector v) {
+        return new Vector((int)Math.floor(v.x/gboxSize) , (int)Math.floor(v.y/gboxSize) , v.z);
+    }
     
     
     
@@ -143,22 +171,26 @@ public class Router {
         
     }
     
-    private Node getNearest (List <Node> path ,int[] sourceCoords )
+    private Node getNearest (List <Node> path ,int[] sourceCoords ,List <Node> tested )
     {
         int min = Integer.MAX_VALUE;
         Node minNode = null ;
         int dist ;
         for (Node n : path)
         {
-            dist = (int) Math.sqrt(Math.pow(sourceCoords[0]-n.getX(), 2)+ Math.pow(sourceCoords[1]-n.getY(), 2) + Math.pow(sourceCoords[2]-n.getZ(), 2) );
-            if (dist < min)
+            if (!tested.contains(n))
             {
-                
-                min = dist ;
-                minNode = n ;
+                dist = (int) Math.sqrt(Math.pow(sourceCoords[0]-n.getX(), 2)+ Math.pow(sourceCoords[1]-n.getY(), 2) + Math.pow(sourceCoords[2]-n.getZ(), 2) );
+                if (dist < min)
+                {
+
+                    min = dist ;
+                    minNode = n ;
+                }
             }
         }
         
        return minNode;     
     }
+    
 }

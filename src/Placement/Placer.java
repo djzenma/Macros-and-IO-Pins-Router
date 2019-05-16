@@ -7,6 +7,8 @@ import Parser.*;
 import java.util.Hashtable;
 
 import static Algorithm.Node.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Placer {
     private final Hashtable<String, Layer> layersTable;
@@ -86,7 +88,9 @@ public class Placer {
     }
 
 
-    public void addObsInGrid () {
+    public List<Vector> addObsInGrid () {
+        List<Vector> obsLocations = new ArrayList<>();
+        
         placedMacros.forEach((key, macro)-> {
             Macro macroDefinition =  definedMacros.get(macro.name);
             Vector baseLocation = macro.location;
@@ -100,11 +104,14 @@ public class Placer {
                             Node node = new Node(i, j, zKey);
                             node.nodeType= NodeType.Obstacle ;
                             grids[i][j][zKey] = node;
+                            obsLocations.add(new Vector(i,j,zKey));
                         }
                     }
                 }
             });
         });
+        
+        return obsLocations;
     }
 
 

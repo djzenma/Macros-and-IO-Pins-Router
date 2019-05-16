@@ -55,7 +55,7 @@ public class Main extends Application {
         Hashtable <Integer , Track> tracks =  parser.getTracks();
 
         placer = new Placer(tracks, dieArea, coreSite , placedMacros,  definedMacros, layersTable);
-        placer.addObsInGrid();
+        List<Vector> obsLocations = placer.addObsInGrid();
         Hashtable<Net.Item, Vector> pinLocationsInGrid = placer.addPinsInGrid();
 
         // Initialization
@@ -68,7 +68,7 @@ public class Main extends Application {
             }
         }
         
-        Router router = new Router(netsSet, placedMacros, definedMacros, pinLocationsInGrid, tracks);
+        Router router = new Router(netsSet, placedMacros, definedMacros, pinLocationsInGrid, tracks, obsLocations);
 
         dimensions = new int[]{placer.getxSize(), placer.getySize(), placer.getzSize()};
         controller = new Controller();

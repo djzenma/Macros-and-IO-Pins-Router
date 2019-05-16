@@ -1,5 +1,6 @@
 package Algorithm;
 
+import Parser.Vector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +33,7 @@ public class Maze {
      * @param sourceNode: The first source node to be placed
      * @param targetNode: The first target node to be placed
      */
-    public Maze(int rows, int cols, Node sourceNode, Node targetNode) {
+    public Maze(int rows, int cols, Node sourceNode, Node targetNode, List<Vector> obsLocations) {
         this.rows = rows;
         this.cols = cols;
         maze = new int[this.rows][this.cols][this.height];
@@ -48,6 +49,7 @@ public class Maze {
         sourceNode.setObstacle(false);
         targetNode.setObstacle(false);
         this.aStar = new AStar(this.rows, this.cols, this.height, sourceNode, targetNode);
+        setObstacles(obsLocations);
 
         this.src = sourceNode;
         this.target = targetNode;
@@ -107,6 +109,23 @@ public class Maze {
         this.aStar.setBlocks(convertListTo2dArray(this.blocks));
         //this.blocks = blocksArray;
     }
+    
+    
+    /**
+     * Sets the obstacles in the Grid
+     * @param blocksArray which is an array of the obstacles to be placed, each element in this array
+     *                    is another array of size 3 which contains the x,y,z coordinates of the obstacle
+     */
+    public void setObstacles(List<Vector> blocksArray) {
+        List<int[]> convBlocksArr = new ArrayList<>();
+        for(Vector v: blocksArray) {
+            int[] coords = {(int) v.x, (int) v.y, (int) v.z};
+            convBlocksArr.add(coords);
+        }
+        this.blocks.addAll(convBlocksArr);
+        this.aStar.setBlocks(convertListTo2dArray(this.blocks));
+    }
+
 
     public void setMetal(int x, int y, int metalNumber) {
         this.maze[x][y][metalNumber] = 1;
