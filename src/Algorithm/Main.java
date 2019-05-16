@@ -16,7 +16,7 @@ public class Main {
     /**
      * @param controller: Interface between the GUI Main class and this Algorithm Main
      */
-    public static List<Node> main(int dimensions[], int[] sourceCoords, int[] targetCoords) {
+    public static List<Node> main(int dimensions[], int[] sourceCoords, int[] targetCoords ) {
 
         String cmd;
         List<Node> path = new ArrayList<>();

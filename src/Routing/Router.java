@@ -61,6 +61,7 @@ public class Router {
                     if (pinIter.name.equals(item.pinName)) {
                         Vector offset = this.pinLocations.get(item);
                         placeInGbox( offset, firstPin[0]);     // Get location of the pin in the placed grids
+                        
                     }
                 });
 
@@ -69,7 +70,7 @@ public class Router {
         });
     }
 
-    private void placeInGbox( Vector offset, boolean firstPin) {
+    private void placeInGbox(Vector offset, boolean firstPin) {
         Vector legalizedOffset = new Vector((int)Math.floor(offset.x/gboxSize) , (int)Math.floor(offset.y/gboxSize) , offset.z);
         if(firstPin) {
             this.grids[(int) (legalizedOffset.x)  ][(int) ( legalizedOffset.y)  ][(int) offset.z].isTarget = true;
@@ -93,6 +94,8 @@ public class Router {
             setPath (path);
         }
     }
+    
+    
 
     
     
