@@ -3,6 +3,8 @@ package Algorithm;
 
 
 import GUI.Controller;
+import Parser.Vector;
+import java.util.ArrayList;
 
 import java.util.List;
 
@@ -15,15 +17,11 @@ public class Main {
     /**
      * @param controller: Interface between the GUI Main class and this Algorithm Main
      */
-    public static void main(Controller controller) {
+    public static List<Node> main(int dimensions[], int[] sourceCoords, int[] targetCoords, List<Vector> obsLocations) {
 
         String cmd;
-        List<Node> path = null;
+        List<Node> path = new ArrayList<>();
         boolean invalidCells = false;
-
-        // Take Source and Target coordinates
-        int[] sourceCoords = Utils.takeCoordinates("Enter The New Source Cell's Coordinates: ", GUI.Main.scanner);
-        int[] targetCoords = Utils.takeCoordinates("Enter The New Target Cell's Coordinates: ", GUI.Main.scanner);
 
         // in case of negative coordinates, terminate
         if(sourceCoords[0] < 0 || sourceCoords[1] < 0 || sourceCoords[2] < 0 ||
@@ -31,9 +29,12 @@ public class Main {
             GUI.Main.exit = true;
 
         // If first time, initialize the maze grid
-        if(GUI.Main.firstTime) {
-            GUI.Main.maze = new Maze(GUI.Main.dimensions[0], GUI.Main.dimensions[1], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), new Node(targetCoords[0], targetCoords[1], targetCoords[2]));
-            GUI.Main.firstTime = false;
+        if(GUI.Main.firstTimeInDetailedRouting || GUI.Main.globalRouting) {
+            GUI.Main.maze = new Maze(dimensions[0], dimensions[1], dimensions[2], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), 
+                    new Node(targetCoords[0], targetCoords[1], targetCoords[2]),
+                    obsLocations);
+            if(GUI.Main.firstTimeInDetailedRouting)
+                GUI.Main.firstTimeInDetailedRouting = false;
         }
         // Else, set the new source and target and check if valid
         else {
@@ -56,10 +57,10 @@ public class Main {
         if(!invalidCells && path.size() != 0) {
             System.out.println("Path Found!");
             GUI.Main.maze.printPath(path);
-            controller.setMaze(GUI.Main.maze.getMaze(), GUI.Main.dimensions[0], GUI.Main.dimensions[1], GUI.Main.dimensions[2]);   // Pass the new maze to the GUI
+            //GUI.Main.controller.setMaze(GUI.Main.maze.getMaze(), dimensions[0], dimensions[1], dimensions[2]);   // Pass the new maze to the GUI
             // Calculate Cost Function
             int cellsCount = path.size();
-            int viaCost = GUI.Main.dimensions[2];
+            int viaCost = dimensions[2];
             int viasCount = calculateNumVias(path);
             int cost = cellsCount + (viasCount * viaCost);
             System.out.println("Cost = " + cost);
@@ -73,9 +74,9 @@ public class Main {
             System.out.println("Path not Found!");
         }
 
-
+        
         // make the last path into obstacles then repeat
-        if(!invalidCells) {
+        if(!invalidCells && !GUI.Main.globalRouting) {
             int[][] blocks = new int[path.size()][];
             //for (Node n: path) {
             //    System.out.println(n);
@@ -91,9 +92,9 @@ public class Main {
             GUI.Main.maze.setObstacles(blocks);
         }
 
-
-        controller.setPins(GUI.Main.maze.sourcesList, GUI.Main.maze.targetList);
-
+        //GUI.Main.controller.setPins(GUI.Main.maze.sourcesList, GUI.Main.maze.targetList);
+        
+        return path;
     }
 
 

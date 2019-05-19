@@ -1,5 +1,6 @@
 package Algorithm;
 
+import Parser.Vector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,9 +33,11 @@ public class Maze {
      * @param sourceNode: The first source node to be placed
      * @param targetNode: The first target node to be placed
      */
-    public Maze(int rows, int cols, Node sourceNode, Node targetNode) {
+    public Maze(int rows, int cols, int height, Node sourceNode, Node targetNode, List<Vector> obsLocations) {
         this.rows = rows;
         this.cols = cols;
+        this.height = height;
+        
         maze = new int[this.rows][this.cols][this.height];
         for (int i=0; i<this.rows; i++) {
             for (int j=0; j<this.cols; j++) {
@@ -48,6 +51,7 @@ public class Maze {
         sourceNode.setObstacle(false);
         targetNode.setObstacle(false);
         this.aStar = new AStar(this.rows, this.cols, this.height, sourceNode, targetNode);
+        setObstacles(obsLocations);
 
         this.src = sourceNode;
         this.target = targetNode;
@@ -81,14 +85,12 @@ public class Maze {
      * @throws Exception in case the target is already occupied
      */
     public void setTarget(int x, int y, int z) throws Exception {
-        if(this.aStar.isObstacle(new Node(x,y,z)))
-            throw new Exception("Target cell in a node that is already occupied!");
-        else {
+        
             this.maze[x][y][z] = TARGET_CELL;
             this.target = new Node(x, y, z);
             this.target.setObstacle(false);
             this.aStar.setFinalNode(this.target);
-        }
+        
     }
 
     public Node getSource() {
@@ -109,6 +111,23 @@ public class Maze {
         this.aStar.setBlocks(convertListTo2dArray(this.blocks));
         //this.blocks = blocksArray;
     }
+    
+    
+    /**
+     * Sets the obstacles in the Grid
+     * @param blocksArray which is an array of the obstacles to be placed, each element in this array
+     *                    is another array of size 3 which contains the x,y,z coordinates of the obstacle
+     */
+    public void setObstacles(List<Vector> blocksArray) {
+        List<int[]> convBlocksArr = new ArrayList<>();
+        for(Vector v: blocksArray) {
+            int[] coords = {(int) v.x, (int) v.y, (int) v.z};
+            convBlocksArr.add(coords);
+        }
+        this.blocks.addAll(convBlocksArr);
+        this.aStar.setBlocks(convertListTo2dArray(this.blocks));
+    }
+
 
     public void setMetal(int x, int y, int metalNumber) {
         this.maze[x][y][metalNumber] = 1;
@@ -178,23 +197,8 @@ public class Maze {
 
     /** Prints the new Path in the Grid*/
     public String printPath(List<Node> path) {
-        int val;
         for (Node node : path) {
-            switch (node.getZ()) {
-                case AStar.M1:
-                    val = M1_CELL;
-                    break;
-                case AStar.M2:
-                    val = M2_CELL;
-                    break;
-                case AStar.M3:
-                    val = M3_CELL;
-                    break;
-                default:
-                    val = 0;
-                    break;
-            }
-            this.maze[node.getX()][node.getY()][node.getZ()] = val;
+            this.maze[node.getX()][node.getY()][node.getZ()] = node.getZ();
         }
         return this.print();
     }

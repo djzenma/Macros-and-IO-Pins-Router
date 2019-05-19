@@ -1,17 +1,25 @@
 package Routing;
 
+import Algorithm.Node;
 import Parser.*;
 import Placement.Placer;
+import java.util.ArrayList;
 
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Router {
     private int gboxSize = 5;
-    private int xGridSize;
-    private int yGridSize;
+    public static int xGridSize;
+    public static int yGridSize;
+    int[] targetCoords = null;
+    int [] detailedFirst = null;
+    List <Node> globalPath = null ;
+    List <Node> pathDetailed = null ;
+
 
     private GBox[][][] grids;
 
@@ -19,45 +27,96 @@ public class Router {
     private Hashtable<String, Macro> placedMacros;
     private Hashtable<String, Macro> definedMacros;
     private Hashtable<Net.Item, Vector> pinLocations;
+    public static Hashtable <Integer , Track> tracks;
+    private List<Vector> legalizedObsLocations;
+    private List <Vector> obsLocations ;
+    private List <Vector> detailedPathsList;
+    
 
-    public Router(HashSet<Net> nets, Hashtable<String, Macro> placedMacros, Hashtable<String, Macro> definedMacros, Hashtable<Net.Item, Vector> pinLocations) {
+    public Router(HashSet<Net> nets, Hashtable<String, Macro> placedMacros, 
+            Hashtable<String, Macro> definedMacros, Hashtable<Net.Item, Vector> pinLocations, 
+            Hashtable <Integer , Track> tracks, List<Vector> obsLocations) {
         this.nets = nets;
         this.placedMacros = placedMacros;
         this.definedMacros = definedMacros;
         this.pinLocations = pinLocations;
+        this.tracks = tracks;
+        this.legalizedObsLocations = new ArrayList<>();
+        this.obsLocations = obsLocations ;
+        for( Vector v: obsLocations) {
+            this.legalizedObsLocations.add(legalizeVector(v));
+        }
 
         xGridSize = Placer.xSize / gboxSize;
         yGridSize = Placer.ySize / gboxSize;
-
+        
         // Initialization
         grids = new GBox[xGridSize][yGridSize][Placer.zSize];
         for (int i = 0; i < xGridSize; i++) {
             for (int j = 0; j < yGridSize; j++) {
                 for (int k = 1; k < Placer.zSize; k++) {
-                    grids[i][j][k] = new GBox(new Vector(i,j,k), false, false, false);
+                    grids[i][j][k] = new GBox(new Vector(i,j,k), false, false, false, false);
                 }
             }
         }
 
-
-        this.nets.forEach((net) -> {
+        detailedPathsList = new ArrayList<>();
+        placeObs();        
+        route();
+        
+    }
+    
+    private void placeObs() {
+        this.legalizedObsLocations.forEach((obsVector) -> {
+            this.grids[(int) (obsVector.x)  ][(int) ( obsVector.y)  ][(int) obsVector.z].isObs = true;
+        });
+    }
+    
+    
+    private void route() {
+         this.nets.forEach((net) -> { //pass by every net
             final boolean[] firstPin = {true};
+            targetCoords = null ;
 
+<<<<<<< HEAD
             net.getNet().forEach((item)-> {
+<<<<<<< HEAD
+                Macro macro = placedMacros.get(item.compName);
+                String Here= "";
+                //assert macro == null : "null location ya negm for " + item.pinName;
+=======
                 // Get the macro's base location from the placed Macros Table
                 Macro macro = this.placedMacros.get(item.compName);
+                Placer.convertUnitToCellFromVector(macro.location);
+>>>>>>> bbe246fa950b82f46a12ce6361d544c332016c1c
                 Vector baseLocation = macro.location;
+=======
+            net.getNet().forEach((item)-> { // pass by ever item in net 
+                // Get the macro's base location from the placed Macros Table
+                Macro macro = this.placedMacros.get(item.compName);
+>>>>>>> my-temporary-work
 
                 // Look up the pin item in its corresponding Macro from the defined Macros table
                 Iterator<Pin> iterator = this.definedMacros.get(macro.name).pins.iterator();
                 iterator.forEachRemaining(pinIter -> {
+<<<<<<< HEAD
+                    if(pinIter.name.equals(item.pinName)) {
+                       // placeInGbox(baseLocation, pinLocations.get(item), first[0]);     // Get location of the pin in the placed grids
+=======
                     if (pinIter.name.equals(item.pinName)) {
+<<<<<<< HEAD
                         Vector offset = this.pinLocations.get(item);
                         this.pinLocations.forEach((keystr, pinLocation) -> {
                             if(keystr.compName.equals(item.compName) && keystr.pinName.equals(item.pinName))
                             System.out.println(keystr.compName + " " + keystr.pinName + " vector: " + pinLocation);
                         });
                         placeInGbox(baseLocation, offset, firstPin[0]);     // Get location of the pin in the placed grids
+>>>>>>> bbe246fa950b82f46a12ce6361d544c332016c1c
+=======
+                        Vector pinLocation = this.pinLocations.get(item);
+                        globallyRoute(pinLocation, firstPin[0]); //set global globalPath if not first 
+                        detailedRoute(pinLocation, firstPin[0]);
+>>>>>>> my-temporary-work
                     }
                 });
 
@@ -65,14 +124,178 @@ public class Router {
             });
         });
     }
+    
+    private void detailedRoute(Vector pinLocation, boolean firstPin) {
+        if (!firstPin) {
+            int[] dimensions = new int[] {Placer.xSize, Placer.ySize, Placer.zSize -1};
+            int[] sourceCoords = new int[] {(int) pinLocation.x, (int) pinLocation.y, (int) pinLocation.z};
+            
+            List <Vector> detailedObs = constructObsLocationsFromGlobalPathToDetailed();
+            
+            if (pathDetailed != null  && pathDetailed.size() != 0 ) //  second
+            {
+                addPathToHistory(pathDetailed);
+                List <Node> pathDetailed_Temp = new ArrayList ();
+                List <Node> tested = new ArrayList ();
+                do
+                {
+                    Node target = getNearest (pathDetailed, sourceCoords , tested ); 
+                    tested.add(target);
+                    detailedFirst = new int[] {(int)target.x ,(int) target.y , (int)target.z} ;
+                    pathDetailed_Temp = Algorithm.Main.main(dimensions, sourceCoords , detailedFirst, detailedObs);
 
+                } while(pathDetailed.size()== 0 && tested.size() != pathDetailed.size());
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+    private void placeInGbox(Vector base, Vector offset, boolean first) {
+        if(first)
+        {
+=======
     private void placeInGbox(Vector base, Vector offset, boolean firstPin) {
         if(firstPin)
+>>>>>>> bbe246fa950b82f46a12ce6361d544c332016c1c
             this.grids[(int) (base.x + offset.x) / gboxSize ][(int) (base.y + offset.y) / gboxSize ][(int) offset.z].isSource = true;
+=======
+                pathDetailed = pathDetailed_Temp ;
+            }
+            else
+                pathDetailed = Algorithm.Main.main(dimensions, sourceCoords , detailedFirst, obsLocations);
+        }
+        else
+            detailedFirst  = new int[]{(int)pinLocation.x, (int)pinLocation.y , (int)pinLocation.z};
+    }
+    
+    private void addPathToHistory(List<Node> path) {
+        for(Node n: path) {
+            detailedPathsList.add(new Vector(n.x, n.y, n.z));
+        }
+    }
+    
+    private List<Vector> constructObsLocationsFromGlobalPathToDetailed() {
+        List<Vector> obsLocations = new ArrayList<>();
+        for(int i = 0; i < Placer.xSize; i++) {
+            for(int j = 0; j < Placer.ySize; j++) {
+                for(int k = 0; k < Placer.zSize - 1; k++) {
+                    if(!isInGlobalPath(i,j,k) || detailedPathsList.contains(new Vector(i,j,k)))
+                        obsLocations.add(new Vector(i,j,k));
+                }
+            }
+        }
+        return obsLocations;
+    }
+    
+    private boolean isInGlobalPath(int x, int y, int z) {
+        for(Node gBox: globalPath) {
+            if( (x >= gBox.x * gboxSize && x < (gBox.x + 1) * gboxSize) 
+                 && (y >= gBox.y * gboxSize && y < (gBox.y + 1) * gboxSize)
+                 && z == gBox.z)
+                return true;
+        }
+        return false;
+    }
+    
+    
+    private void globallyRoute (Vector offset, boolean firstPin) {
+        Vector legalizedOffset = legalizeVector(offset);
+        if(firstPin) {
+            this.grids[(int) (legalizedOffset.x)  ][(int) ( legalizedOffset.y)  ][(int) offset.z].isTarget = true;
+            targetCoords = new int[]{(int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
+>>>>>>> my-temporary-work
+        }
         else {
-            this.grids[(int) (base.x + offset.x) / gboxSize ][(int) (base.y + offset.y) / gboxSize ][(int) offset.z].isTarget = true;
+            this.grids[(int) (legalizedOffset.x) ][(int) (legalizedOffset.y)][(int) offset.z].isSource = true;
+            int[] dimensions = new int[]{this.xGridSize, this.yGridSize, Placer.zSize - 1};
+            int[] sourceCoords = new int[]{ (int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
+            if (globalPath != null && globalPath.size() != 0)
+            {
+                List <Node> tested = new ArrayList ();
+                List <Node> pathTemp  = new ArrayList ();
+                do {
+                    Node target = getNearest (globalPath, sourceCoords , tested ); // TODO:: add to the globalPath all the net block privious paths
+                    targetCoords =  new int[]{ (int) target.getX(), (int) target.getY(), (int)target.getZ()};
+                    pathTemp = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
+                    tested.add(target);
+                } while (pathTemp.size() == 0 && tested.size() != globalPath.size());
+                
+                globalPath = pathTemp ;
+            }
+            else
+                globalPath = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
+                
+            setPath (globalPath);
+
         }
     }
 
+    
+    private Vector legalizeVector(Vector v) {
+        return new Vector((int)Math.floor(v.x/gboxSize) , (int)Math.floor(v.y/gboxSize) , v.z);
+    }
+    
+    
+    
+    
+    
+    
+    public void printGbox ()
+    {
+        for (int z= 1 ;z < Placer.zSize ;z++)
+        {
+            System.out.println("Metal " + (z));
+            
+            for (int j=0 ;j < yGridSize ;j++)
+            {
+                for (int i=0 ;i< xGridSize ;i++ )
+                        {
+                            if (grids[i][j][z].isSource == true)
+                                System.out.print("S ");
+                            else 
+                                if (grids[i][j][z].isTarget == true)
+                                    System.out.print("T ");
+                            else
+                               if (grids[i][j][z].isPath == true)
+                                    System.out.print("P ");     
+                            else
+                                System.out.print("- ");
+                        }
+                System.out.print('\n');
+            }
+            
+       }
 
+    }
+    
+    public void setPath (List <Node> path)
+    {
+        for (Node n : path)
+        {
+            grids[n.getX()][n.getY()][n.getZ() + 1].isPath = true ;
+        }
+        
+        
+    }
+    
+    private Node getNearest (List <Node> path ,int[] sourceCoords ,List <Node> tested )
+    {
+        int min = Integer.MAX_VALUE;
+        Node minNode = null ;
+        int dist ;
+        for (Node n : path)
+        {
+            if (!tested.contains(n))
+            {
+                dist = (int) Math.sqrt(Math.pow(sourceCoords[0]-n.getX(), 2)+ Math.pow(sourceCoords[1]-n.getY(), 2) + Math.pow(sourceCoords[2]-n.getZ(), 2) );
+                if (dist < min)
+                {
+
+                    min = dist ;
+                    minNode = n ;
+                }
+            }
+        }
+        
+       return minNode;     
+    }
+    
 }

@@ -1,5 +1,8 @@
 package Algorithm;
 
+import Parser.Track;
+import Placement.Placer;
+import Routing.Router;
 import java.util.*;
 
 
@@ -7,16 +10,10 @@ import java.util.*;
  * The actual AStar Algorithm Class
  */
 public class AStar {
-    public static final int M1 = 0;
-    public static final int M2 = 1;
-    public static final int M3 = 2;
-
-    private static int M1_COST = 1;
-    private static int M2_COST = 5;
-    private static int M3_COST = 10;
-
-    private static int M1_M2_COST = 60;     // Cost Of passing from M1 to M2 or vice versa
-    private static int M2_M3_COST = 100;    // Cost Of passing from M2 to M3 or vice versa
+    private static int HV_COST = 1;
+ 
+    private static int UP_COST = 60;        // Cost Of passing from M2 to M3 or vice versa
+    private static int DOWN_COST = 10;
 
     private final int height;
     private final int cols;
@@ -72,7 +69,7 @@ public class AStar {
     /**
      *  Resets the openList and ClosedSet, i.e destroys them and makes new ones.
      *  And Recalculates the heuristic of each node as the final Node most probably have changed when the user entered new coordinates.
-     *  Used When calculating a new path by the findPath method.
+  Used When calculating a new globalPath by the findPath method.
      */
     private void reset() {
         for (int i = 0; i < rows; i++) {
@@ -91,7 +88,7 @@ public class AStar {
     /**
      * @param blocksArray coordinates of the obstacles to be placed
      */
-    public void setBlocks(int[][] blocksArray) {
+    public void setBlocks(int[][] blocksArray ) {
         for (int[] aBlocksArray : blocksArray) {
             int x = aBlocksArray[0];
             int y = aBlocksArray[1];
@@ -99,6 +96,19 @@ public class AStar {
             this.setObstacle(x, y, z);
         }
     }
+    
+    public void setTargetBlocks(int[][] targetsArray ) {
+        for (int[] aBlocksArray : targetsArray) {
+            int x = aBlocksArray[0];
+            int y = aBlocksArray[1];
+            int z = aBlocksArray[2];
+            this.setFinalNode(new Node(x,y,z));
+        }
+    }
+    
+    
+    
+    
 
     public void getBlocks() {
         for (Node[][] nodeAr2 : this.searchArea) {
@@ -113,8 +123,8 @@ public class AStar {
 
     /**
      * The Actual A* Algorithm
-     * @return Path List containing the nodes used by the path.
-     * If path.size() is 0 then no path had been found.
+     * @return Path List containing the nodes used by the globalPath.
+ If globalPath.size() is 0 then no globalPath had been found.
      */
     public List<Node> findPath() {
         this.reset();
@@ -138,7 +148,7 @@ public class AStar {
     /**
      * Traces the parent from a given current Node all the way up to the source node To return the Path between them.
      * @param currentNode
-     * @return Path from the currentNode to the oldest parent in the path.
+     * @return Path from the currentNode to the oldest parent in the globalPath.
      */
     private List<Node> getPath(Node currentNode) {
         List<Node> path = new ArrayList<Node>();
@@ -157,10 +167,12 @@ public class AStar {
      * @param currentNode
      */
     private void addAdjacentNodes(Node currentNode) {
-        if(currentNode.getZ() == M1 || currentNode.getZ() == M3) {
+        if(currentNode.getZ() == 4)
+            System.out.print(cols);
+        if(Router.tracks.get(currentNode.getZ() +1).direction == Track.X) {
             this.addYZPlane(currentNode);
         }
-        else {  // is Metal 2
+        else {  // is a vertical Metal
             this.addXZPlanePos(currentNode);
             this.addXZPlaneNeg(currentNode);
         }
@@ -176,7 +188,7 @@ public class AStar {
 
         int lowerRow = x + 1;
         if (lowerRow < this.rows) {  // Check row down
-            this.checkNode(currentNode, lowerRow, y, M2, this.getM2Cost());
+            this.checkNode(currentNode, lowerRow, y, z, this.getHVCost());
         }
         if (currentNode.getZ() - 1 >= 0) {   // Check down
             this.checkLevelDown(currentNode);
@@ -196,7 +208,7 @@ public class AStar {
 
         int upperRow = x - 1;
         if (upperRow >= 0) {    // Check a row up
-            this.checkNode(currentNode, upperRow, y, M2, this.getM2Cost());
+            this.checkNode(currentNode, upperRow, y, z, this.getHVCost());
         }
         if (currentNode.getZ() - 1 >= 0) {   // Check down
             this.checkLevelDown(currentNode);
@@ -225,19 +237,11 @@ public class AStar {
     }
 
 
-    /** Checks a Metal Level Higher
+    /** Calculates the cost of going to a Metal Level Higher
      * @param currentNode
      */
     private void checkLevelUp(Node currentNode) {
-        int cost;
-        if(currentNode.getZ() == M1)
-            cost = getM1M2Cost();
-        else if(currentNode.getZ() == M2)
-            cost = getM2M3Cost();
-        else {
-            cost = 100;
-            System.out.println("Logic Error: It went Up on a Metal 3");
-        }
+        int cost = getUpCost();
         this.checkNode(currentNode, currentNode.getX(), currentNode.getY(), currentNode.getZ()+1, cost);
     }
 
@@ -245,15 +249,7 @@ public class AStar {
      * @param currentNode
      */
     private void checkLevelDown(Node currentNode) {
-        int cost;
-        if(currentNode.getZ() == M2)
-            cost = getM1M2Cost();
-        else if(currentNode.getZ() == M3)
-            cost = getM2M3Cost();
-        else {
-            cost = 100;
-            System.out.println("Logic Error: It went Up on a Metal 3");
-        }
+        int cost = getDownCost();
         this.checkNode(currentNode, currentNode.getX(), currentNode.getY(), currentNode.getZ()-1, cost);
     }
 
@@ -261,15 +257,7 @@ public class AStar {
      * @param currentNode
      */
     private void checkLevelLeft(Node currentNode) {
-        int cost;
-        if(currentNode.getZ() == M1)
-            cost = getM1Cost();
-        else if(currentNode.getZ() == M3)
-            cost = getM3Cost();
-        else {
-            cost = 100;
-            System.out.println("Logic Error: It went left on a Metal 2");
-        }
+        int cost = getHVCost();
         this.checkNode(currentNode, currentNode.getX(), currentNode.getY() - 1, currentNode.getZ(), cost);
     }
 
@@ -277,15 +265,7 @@ public class AStar {
      * @param currentNode
      */
     private void checkLevelRight(Node currentNode) {
-        int cost;
-        if(currentNode.getZ() == M1)
-            cost = getM1Cost();
-        else if(currentNode.getZ() == M3)
-            cost = getM3Cost();
-        else {
-            cost = 100;
-            System.out.println("Logic Error: It went right on a Metal 2");
-        }
+        int cost = getHVCost();
         this.checkNode(currentNode, currentNode.getX(), currentNode.getY() + 1, currentNode.getZ(), cost);
     }
 
@@ -334,7 +314,8 @@ public class AStar {
     private void setObstacle(int x, int y, int z) {
         this.searchArea[x][y][z].setObstacle(true);
     }
-
+   
+     
     /**
      * @param node input node
      * @return true of the node is an obstacle, false otherwise.
@@ -390,44 +371,16 @@ public class AStar {
     }
 
 
-    public int getM1Cost() {
-        return M1_COST;
+    public int getHVCost() {
+        return HV_COST;
     }
-
-    public void setM1Cost(int m1Cost) {
-        M1_COST = m1Cost;
+    
+    public static int getUpCost() {
+        return UP_COST;
     }
-
-    public int getM2Cost() {
-        return M2_COST;
-    }
-
-    public void setM2Cost(int m2Cost) {
-        M2_COST = m2Cost;
-    }
-
-    public int getM3Cost() {
-        return M3_COST;
-    }
-
-    public void setM3Cost(int m3Cost) {
-        M3_COST = m3Cost;
-    }
-
-    public static int getM1M2Cost() {
-        return M1_M2_COST;
-    }
-
-    public static void setM1M2Cost(int m1M2Cost) {
-        M1_M2_COST = m1M2Cost;
-    }
-
-    public static int getM2M3Cost() {
-        return M2_M3_COST;
-    }
-
-    public static void setM2M3Cost(int m2M3Cost) {
-        M2_M3_COST = m2M3Cost;
+    
+    public static int getDownCost() {
+        return DOWN_COST;
     }
 
     public long getCpuTime() {

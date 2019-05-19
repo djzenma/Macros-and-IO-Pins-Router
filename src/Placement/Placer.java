@@ -7,10 +7,12 @@ import Parser.*;
 import java.util.Hashtable;
 
 import static Algorithm.Node.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Placer {
     private final Hashtable<String, Layer> layersTable;
-    private Hashtable <Integer , Track> tracks;
+    private static Hashtable <Integer , Track> tracks;
     private Rect dieArea ;
     private Vector coreSite ;
     private Hashtable<String,Macro> placedMacros;
@@ -20,7 +22,7 @@ public class Placer {
     public static int xSize, ySize, zSize;    // The number of cells per grid layer
     public static int xStart, yStart;         // Coordinates of the start of the grid
     public static int cellWidth, cellHeight;
-    private Hashtable<Integer, Integer> layersRatios;   // The ratio of every metal layer relative to the maximum one
+    private static Hashtable<Integer, Integer> layersRatios;   // The ratio of every metal layer relative to the maximum one
 
     public Placer (Hashtable <Integer , Track> tracks, Rect dieArea ,
                    Vector coreSite , Hashtable<String,Macro> placedMacros, Hashtable<String, Macro> definedMacros, Hashtable<String, Layer> layersTable)
@@ -86,7 +88,9 @@ public class Placer {
     }
 
 
-    public void addObsInGrid () {
+    public List<Vector> addObsInGrid () {
+        List<Vector> obsLocations = new ArrayList<>();
+        
         placedMacros.forEach((key, macro)-> {
             Macro macroDefinition =  definedMacros.get(macro.name);
             Vector baseLocation = macro.location;
@@ -100,11 +104,14 @@ public class Placer {
                             Node node = new Node(i, j, zKey);
                             node.nodeType= NodeType.Obstacle ;
                             grids[i][j][zKey] = node;
+                            obsLocations.add(new Vector(i,j,zKey));
                         }
                     }
                 }
             });
         });
+        
+        return obsLocations;
     }
 
 
@@ -147,7 +154,7 @@ public class Placer {
              
     }
 
-    public Rect convertUnitToCell(Rect rect, Vector baseLocation) {
+    private Rect convertUnitToCell(Rect rect, Vector baseLocation) {
         Vector one = new Vector((int) Math.floor((rect.point1.x + baseLocation.x - xStart)/cellWidth), (int) Math.floor((rect.point1.y + baseLocation.y - yStart)/cellHeight));
         Vector two = new Vector((int) Math.floor((rect.point2.x + baseLocation.x - xStart)/cellWidth), (int) Math.floor((rect.point2.y + baseLocation.y - yStart)/cellHeight));
 
@@ -157,7 +164,24 @@ public class Placer {
 
     }
 
-    private Rect legalizeIndexes(Rect rect, Integer zKey) {
+    public static Vector convertUnitToCellFromVector(Vector baseLocation , int gboxSize) {
+        Vector vector = new Vector((int) Math.floor((baseLocation.x - xStart)/cellWidth), (int) Math.floor((baseLocation.y - yStart)/cellHeight));
+        Integer z = (int) baseLocation.z;
+
+        return legalizeIndexesFromVector(vector, z , gboxSize);
+
+    }
+
+    private static Vector legalizeIndexesFromVector(Vector vector, Integer z, int gboxSize ) {        
+        int x= (int)vector.x/gboxSize;
+        int y= (int)vector.y/gboxSize;
+            
+       
+        return new Vector(x,y);
+    }
+
+
+    private static Rect legalizeIndexes(Rect rect, Integer zKey) {
 
         int xStart = (int)rect.point1.x;
         int yStart = (int)rect.point1.y;
