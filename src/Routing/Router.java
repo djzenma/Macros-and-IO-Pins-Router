@@ -9,16 +9,11 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Router {
     private int gboxSize = 5;
     public static int xGridSize;
     public static int yGridSize;
-    int[] targetCoords = null;
-    int [] detailedFirst = null;
-    List <Node> globalPath = null ;
-    List <Node> pathDetailed = null ;
 
 
     private GBox[][][] grids;
@@ -29,9 +24,16 @@ public class Router {
     private Hashtable<Net.Item, Vector> pinLocations;
     public static Hashtable <Integer , Track> tracks;
     private List<Vector> legalizedObsLocations;
-    private List <Vector> obsLocations ;
     private List <Vector> detailedPathsList;
-    
+
+
+    // helper global variables
+    private int[] targetCoords = null;
+    private int [] detailedFirst = null;
+    private List <Node> globalPath = null ;
+    private List <Node> pathDetailed = null ;
+    private List <Node> globalNetPaths;     // list of all the recent global paths in the same net block to choose a near target from it
+    private List <Node> detailedNetPaths;   // list of all the recent detailed paths in the same net block to choose a near target from it
 
     public Router(HashSet<Net> nets, Hashtable<String, Macro> placedMacros,
             Hashtable<String, Macro> definedMacros, Hashtable<Net.Item, Vector> pinLocations, 
@@ -42,7 +44,6 @@ public class Router {
         this.pinLocations = pinLocations;
         Router.tracks = tracks;
         this.legalizedObsLocations = new ArrayList<>();
-        this.obsLocations = obsLocations ;
         for( Vector v: obsLocations) {
             this.legalizedObsLocations.add(legalizeVector(v));
         }
@@ -113,7 +114,7 @@ public class Router {
                 List <Node> tested = new ArrayList<>();
                 do
                 {
-                    Node target = getNearest (pathDetailed, sourceCoords , tested ); // TODO:: instead of pathDetailed, pass a list of the recent paths in the same net block
+                    Node target = getNearest (detailedNetPaths, sourceCoords , tested ); // pass a list of the recent paths in the same net block
                     tested.add(target);
                     detailedFirst = new int[] {target.x, target.y, target.z} ;
                     pathDetailed_Temp = Algorithm.Main.main(dimensions, sourceCoords , detailedFirst, detailedObs);
@@ -126,8 +127,10 @@ public class Router {
                 pathDetailed = Algorithm.Main.main(dimensions, sourceCoords, detailedFirst, detailedObs);
                 assert pathDetailed.size() == 0 : "Detailed path not found for the first 2 pins in the current net block";
             }
+            detailedNetPaths.addAll(pathDetailed);
         }
         else {  // is first pin
+            detailedNetPaths = new ArrayList<>();
             detailedFirst = new int[]{(int) pinLocation.x, (int) pinLocation.y, (int) pinLocation.z};
         }
     }
@@ -171,7 +174,8 @@ public class Router {
     
     private void globallyRoute (Vector offset, boolean firstPin) {
         Vector legalizedOffset = legalizeVector(offset);
-        if(firstPin) {
+        if(firstPin) {      // 1st time
+            globalNetPaths = new ArrayList<>();
             this.grids[(int) legalizedOffset.x][(int) legalizedOffset.y][(int) offset.z].isTarget = true;
             targetCoords = new int[]{(int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
         }
@@ -179,12 +183,11 @@ public class Router {
             this.grids[(int) (legalizedOffset.x) ][(int) (legalizedOffset.y)][(int) offset.z].isSource = true;
             int[] dimensions = new int[]{xGridSize, yGridSize, Placer.zSize - 1};
             int[] sourceCoords = new int[]{ (int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
-            if (globalPath != null && globalPath.size() != 0)
-            {
+            if (globalPath != null && globalPath.size() != 0) {
                 List <Node> tested = new ArrayList<>();
                 List <Node> pathTemp;
                 do {
-                    Node target = getNearest (globalPath, sourceCoords , tested ); // TODO:: add to the globalPath all the net block previous paths
+                    Node target = getNearest (globalNetPaths, sourceCoords , tested );
                     targetCoords =  new int[]{target.getX(), target.getY(), target.getZ()};
                     pathTemp = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
                     tested.add(target);
@@ -196,9 +199,9 @@ public class Router {
                 globalPath = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
                 assert globalPath.size() == 0 : "Global path not found for the first 2 pins in the current net block";
             }
-                
-            setPath (globalPath);
+            globalNetPaths.addAll(globalPath);
 
+            setPath (globalPath);
         }
     }
 
