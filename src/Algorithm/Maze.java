@@ -33,9 +33,11 @@ public class Maze {
      * @param sourceNode: The first source node to be placed
      * @param targetNode: The first target node to be placed
      */
-    public Maze(int rows, int cols, Node sourceNode, Node targetNode, List<Vector> obsLocations) {
+    public Maze(int rows, int cols, int height, Node sourceNode, Node targetNode, List<Vector> obsLocations) {
         this.rows = rows;
         this.cols = cols;
+        this.height = height;
+        
         maze = new int[this.rows][this.cols][this.height];
         for (int i=0; i<this.rows; i++) {
             for (int j=0; j<this.cols; j++) {

@@ -160,4 +160,8 @@ public class Node {
     public void setZ(int z) {
         this.z = z;
     }
+    
+    
+    @Override
+    public int hashCode() { return 0; }
 }

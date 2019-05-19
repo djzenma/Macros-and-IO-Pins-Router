@@ -30,7 +30,7 @@ public class Main {
 
         // If first time, initialize the maze grid
         if(GUI.Main.firstTimeInDetailedRouting || GUI.Main.globalRouting) {
-            GUI.Main.maze = new Maze(dimensions[0], dimensions[1], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), 
+            GUI.Main.maze = new Maze(dimensions[0], dimensions[1], dimensions[2], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), 
                     new Node(targetCoords[0], targetCoords[1], targetCoords[2]),
                     obsLocations);
             if(GUI.Main.firstTimeInDetailedRouting)

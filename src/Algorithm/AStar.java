@@ -69,7 +69,7 @@ public class AStar {
     /**
      *  Resets the openList and ClosedSet, i.e destroys them and makes new ones.
      *  And Recalculates the heuristic of each node as the final Node most probably have changed when the user entered new coordinates.
-     *  Used When calculating a new path by the findPath method.
+  Used When calculating a new globalPath by the findPath method.
      */
     private void reset() {
         for (int i = 0; i < rows; i++) {
@@ -123,8 +123,8 @@ public class AStar {
 
     /**
      * The Actual A* Algorithm
-     * @return Path List containing the nodes used by the path.
-     * If path.size() is 0 then no path had been found.
+     * @return Path List containing the nodes used by the globalPath.
+ If globalPath.size() is 0 then no globalPath had been found.
      */
     public List<Node> findPath() {
         this.reset();
@@ -148,7 +148,7 @@ public class AStar {
     /**
      * Traces the parent from a given current Node all the way up to the source node To return the Path between them.
      * @param currentNode
-     * @return Path from the currentNode to the oldest parent in the path.
+     * @return Path from the currentNode to the oldest parent in the globalPath.
      */
     private List<Node> getPath(Node currentNode) {
         List<Node> path = new ArrayList<Node>();
@@ -167,7 +167,9 @@ public class AStar {
      * @param currentNode
      */
     private void addAdjacentNodes(Node currentNode) {
-        if(Router.tracks.get(currentNode.getZ() + 1).direction == Track.X) {
+        if(currentNode.getZ() == 4)
+            System.out.print(cols);
+        if(Router.tracks.get(currentNode.getZ() +1).direction == Track.X) {
             this.addYZPlane(currentNode);
         }
         else {  // is a vertical Metal
