@@ -13,11 +13,11 @@ public class Node {
     private int g;
     private int f;
     private int h;
-    private int x;
-    private int y;
+    
+    public int x, y, z;
+    
     private boolean isObstacle;
     private Node parent;
-    private int z;
     public ArrayList <Pin> pin ;
     /**
      * @param x coordinate of this node
@@ -30,6 +30,7 @@ public class Node {
         this.y = y;
         this.z = z;
         pin = new ArrayList <Pin>();
+        this.isObstacle = false;
         this.nodeType = NodeType.Empty;
     }
 
@@ -131,8 +132,9 @@ public class Node {
     }
 
     public void setObstacle(boolean isBlock) {
-        this.isObstacle = true;
-        this.nodeType = NodeType.Obstacle;
+        this.isObstacle = isBlock;
+        if(isBlock)
+            this.nodeType = NodeType.Obstacle;
     }
 
     public int getX() {
@@ -158,4 +160,8 @@ public class Node {
     public void setZ(int z) {
         this.z = z;
     }
+    
+    
+    @Override
+    public int hashCode() { return 0; }
 }
