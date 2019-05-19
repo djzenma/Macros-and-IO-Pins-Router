@@ -62,7 +62,7 @@ public class Placer {
         // The maximum number of cells per layer
         xSize = xMax[0];
         ySize = yMax[0];
-        zSize = tracks.size() + 1;     // Because we don't start from the 0 index
+        zSize = tracks.size() + 1;     // Because we don't start from the 0 index TODO:: verify
 
 
         // Calculating the ratio of every metal layer relative to the maximum one
