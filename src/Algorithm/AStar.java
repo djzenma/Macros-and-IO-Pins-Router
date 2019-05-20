@@ -55,7 +55,7 @@ public class AStar {
     private void setNodes() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                for (int k = 0; k < height; k++) {
+                for (int k = 1; k < height; k++) {
                     Node node = new Node(i, j, k);
                     node.setObstacle(false);
                     node.calculateHeuristic(this.getFinalNode());
@@ -74,7 +74,7 @@ public class AStar {
     private void reset() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                for (int k = 0; k < height; k++) {
+                for (int k = 1; k < height; k++) {
                     Node node = this.searchArea[i][j][k];
                     node.calculateHeuristic(this.getFinalNode());
                     this.searchArea[i][j][k] = node;
@@ -168,8 +168,8 @@ public class AStar {
      */
     private void addAdjacentNodes(Node currentNode) {
         if(currentNode.getZ() == 4)
-            System.out.print(cols);
-        if(Router.tracks.get(currentNode.getZ() +1).direction == Track.X) {
+           // System.out.print(cols);
+        if(Router.tracks.get(currentNode.getZ()).direction == Track.X) {
             this.addYZPlane(currentNode);
         }
         else {  // is a vertical Metal
@@ -190,7 +190,7 @@ public class AStar {
         if (lowerRow < this.rows) {  // Check row down
             this.checkNode(currentNode, lowerRow, y, z, this.getHVCost());
         }
-        if (currentNode.getZ() - 1 >= 0) {   // Check down
+        if (currentNode.getZ() - 1 >= 1) {   // Check down
             this.checkLevelDown(currentNode);
         }
         if (currentNode.getZ() + 1 < height) {   // Check up
@@ -210,7 +210,7 @@ public class AStar {
         if (upperRow >= 0) {    // Check a row up
             this.checkNode(currentNode, upperRow, y, z, this.getHVCost());
         }
-        if (currentNode.getZ() - 1 >= 0) {   // Check down
+        if (currentNode.getZ() - 1 >= 1) {   // Check down
             this.checkLevelDown(currentNode);
         }
         if (currentNode.getZ() + 1 < height) {   // Check up
@@ -228,7 +228,7 @@ public class AStar {
         if (currentNode.getY() + 1 < this.cols) {     // Check right
             this.checkLevelRight(currentNode);
         }
-        if (currentNode.getZ() - 1 >= 0) {   // Check down
+        if (currentNode.getZ() - 1 >= 1) {   // Check down
             this.checkLevelDown(currentNode);
         }
         if (currentNode.getZ() + 1 < this.height) {   // Check up

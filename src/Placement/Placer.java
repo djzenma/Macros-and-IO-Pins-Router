@@ -43,7 +43,7 @@ public class Placer {
 
         // Getting the maximum number of cells to create our grids
         tracks.forEach((key, track) -> {
-            if(track.direction == Track.X) {
+            if(track.direction == Track.X) { //Track.X = true / vertical
                 if(track.number > xMax[0]) {
                     xMax[0] = track.number;
                     cellWidth = track.step;
@@ -62,7 +62,7 @@ public class Placer {
         // The maximum number of cells per layer
         xSize = xMax[0];
         ySize = yMax[0];
-        zSize = tracks.size() + 1;     // Because we don't start from the 0 index TODO:: verify
+        zSize = tracks.size() +1 ;     // 5 
 
 
         // Calculating the ratio of every metal layer relative to the maximum one
@@ -78,7 +78,7 @@ public class Placer {
 
         // Initialization
         grids = new Node [xSize][ySize][zSize];
-        for (int k=0 ;k<zSize ;k++) {
+        for (int k=1 ;k<zSize ;k++) {
             for (int j = 0; j < ySize; j++) {
                 for (int i = 0; i < xSize; i++) {
                     grids[i][j][k] = new Node(i, j, k);
@@ -207,7 +207,7 @@ public class Placer {
 
         for (int i = 0; i < xSize; i++) {
             for (int j = 0; j < ySize; j++) {
-                for (int k = 0; k < zSize; k++) {
+                for (int k = 1; k < zSize; k++) {
                     switch (grids[i][j][k].nodeType) {
                         case Empty:
                             maze[i][j][k] = 0;

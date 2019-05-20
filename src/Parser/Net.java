@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Net {
-    private SpecialItem Special_Net ;
-
-
+    private List<SpecialItem> Special_Net ;
     private List<Item> Net;
 
     public Net() {
         this.Net = new ArrayList<>();
+        this.Special_Net = new ArrayList<>();
     }
 
     public void insertPin(String compName, String pinName) {
@@ -19,7 +18,7 @@ public class Net {
 
     public void insertSpecialPin (String name , List<Rect> routingPath ,List <Via> vias)
     {
-        this.Special_Net= new SpecialItem (name , routingPath , vias );
+        this.Special_Net.add(new SpecialItem (name , routingPath , vias ));
     }
 
     public List<Item> getNet() {

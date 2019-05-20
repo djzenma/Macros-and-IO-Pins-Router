@@ -54,7 +54,7 @@ public class Router {
         grids = new GBox[xGridSize][yGridSize][Placer.zSize];
         for (int i = 0; i < xGridSize; i++) {
             for (int j = 0; j < yGridSize; j++) {
-                for (int k = 1; k < Placer.zSize; k++) {
+                for (int k = 1; k < Placer.zSize; k++) { // 1 --> 4
                     grids[i][j][k] = new GBox(new Vector(i,j,k), false, false, false, false);
                 }
             }
@@ -101,7 +101,7 @@ public class Router {
     
     private void detailedRoute(Vector pinLocation, boolean firstPin) {
         if (!firstPin) {
-            int[] dimensions = new int[] {Placer.xSize, Placer.ySize, Placer.zSize -1};
+            int[] dimensions = new int[] {Placer.xSize, Placer.ySize, Placer.zSize };
             int[] sourceCoords = new int[] {(int) pinLocation.x, (int) pinLocation.y, (int) pinLocation.z};
             
             List <Vector> detailedObs = constructObsLocationsFromGlobalPathToDetailed();
@@ -146,7 +146,7 @@ public class Router {
         List<Vector> obsLocations = new ArrayList<>();
         for(int i = 0; i < Placer.xSize; i++) {
             for(int j = 0; j < Placer.ySize; j++) {
-                for(int k = 0; k < Placer.zSize - 1; k++) {
+                for(int k = 1; k < Placer.zSize ; k++) {
                     if(!isInGlobalPath(i,j,k) || detailedPathsList.contains(new Vector(i,j,k)))
                         obsLocations.add(new Vector(i,j,k));
                 }
@@ -177,7 +177,7 @@ public class Router {
         }
         else {
             this.grids[(int) (legalizedOffset.x) ][(int) (legalizedOffset.y)][(int) offset.z].isSource = true;
-            int[] dimensions = new int[]{xGridSize, yGridSize, Placer.zSize - 1};
+            int[] dimensions = new int[]{xGridSize, yGridSize, Placer.zSize };
             int[] sourceCoords = new int[]{ (int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
             if (globalPath != null && globalPath.size() != 0)
             {

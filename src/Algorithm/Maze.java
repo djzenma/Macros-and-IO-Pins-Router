@@ -9,9 +9,7 @@ import java.util.List;
  *  Interface between the Algorithm's Main Class and the AStar Class
  */
 public class Maze {
-    private static final int M1_CELL = 1;
-    private static final int M2_CELL = 2;
-    private static final int M3_CELL = 3;
+   
     private static final int SOURCE_CELL = 4;
     private static final int TARGET_CELL = 5;
 
@@ -19,7 +17,7 @@ public class Maze {
     private AStar aStar;
 
     private int rows, cols;
-    private int height = 3;
+    private int height ;
 
     private Node src, target;
 
@@ -41,7 +39,7 @@ public class Maze {
         maze = new int[this.rows][this.cols][this.height];
         for (int i=0; i<this.rows; i++) {
             for (int j=0; j<this.cols; j++) {
-                for(int k=0; k<this.height; k++)
+                for(int k=1; k<this.height; k++)
                     maze[i][j][k] = 0;
             }
         }
@@ -163,7 +161,7 @@ public class Maze {
         String val;
         StringBuilder output = new StringBuilder();
 
-        for(int k=0; k<this.height; k++) {
+        for(int k=1; k<this.height; k++) {
              for (int i=0; i<this.rows; i++) {
                  for (int j=0; j<this.cols; j++) {
                     switch (maze[i][j][k]) {
@@ -188,7 +186,7 @@ public class Maze {
                 } // End of j loop
                  System.out.println("");
             } // End of i loop
-            int metalNum = k + 1;
+            int metalNum = k ;
             System.out.println("\nMetal " + metalNum + "\n");
         } // End of k loop
 
