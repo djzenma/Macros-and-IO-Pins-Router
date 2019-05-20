@@ -28,7 +28,7 @@ public class Router {
     public static Hashtable <Integer , Track> tracks;
     private List<Vector> legalizedObsLocations;
     private List <Vector> detailedPathsList;
-
+    private List<Vector> obsLocations ;
 
     // helper global variables
     private int[] targetCoords = null;
@@ -45,6 +45,7 @@ public class Router {
         this.placedMacros = placedMacros;
         this.definedMacros = definedMacros;
         this.pinLocations = pinLocations;
+        this.obsLocations = obsLocations ;
         Router.tracks = tracks;
         this.legalizedObsLocations = new ArrayList<>();
         for( Vector v: obsLocations) {
@@ -101,6 +102,8 @@ public class Router {
                     if (pinIter.name.equals(item.pinName)) {
                         Vector pinLocation = this.pinLocations.get(item);
                         globallyRoute(pinLocation, firstPin[0]); //set global globalPath if not first 
+                        if (!firstPin[0])
+                        printGbox ();
                         detailedRoute(pinLocation, firstPin[0]);
                     }
                 });
@@ -131,13 +134,13 @@ public class Router {
                 } while(pathDetailed_Temp.size()== 0 && tested.size() != pathDetailed.size());
                 if (pathDetailed_Temp.size() != 0)
                 pathDetailed = pathDetailed_Temp ;
-                if (pathDetailed.size() != 0 && pathDetailed != null)
+                //if (pathDetailed.size() != 0 && pathDetailed != null)
                     draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
             }
             else {    // is second time
                 GUI.Main.firstTimeInDetailedRouting = true;
                 pathDetailed = Algorithm.Main.main(dimensions, sourceCoords, detailedFirst, detailedObs);
-                if (pathDetailed.size() != 0 && pathDetailed != null)
+                //if (pathDetailed.size() != 0 && pathDetailed != null)
                     draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
                 
                 if(pathDetailed.size() == 0 )
@@ -252,13 +255,25 @@ public class Router {
                 for (int i=0 ;i< xGridSize ;i++ )
                         {
                             if (grids[i][j][z].isSource == true)
+                            {
                                 System.out.print("S ");
+                                grids[i][j][z].isSource = false;
+                            }
                             else 
                                 if (grids[i][j][z].isTarget == true)
+                                {
                                     System.out.print("T ");
+                                    grids[i][j][z].isTarget = false;
+                                }
                             else
                                if (grids[i][j][z].isPath == true)
-                                    System.out.print("P ");     
+                               {
+                                   System.out.print("P ");   
+                                   grids[i][j][z].isPath = false ;
+                               }  
+                            else
+                                if (grids[i][j][z].isObs == true)
+                                   System.out.print("O ");   
                             else
                                 System.out.print("- ");
                         }
@@ -300,37 +315,57 @@ public class Router {
     {
         Matrix[(int)sourceCoords[0]][(int)sourceCoords[1]][(int)sourceCoords[2]].nodeType= NodeType.Pin ;
         Matrix[(int)detailedFirst[0]][(int)detailedFirst[1]][(int)detailedFirst[2]].nodeType= NodeType.Pin ;
+        /////To Show Global Routing////
         for (Vector v : detailedObs)
-        {
-                Matrix[(int)v.x][(int)v.y][(int)v.z].nodeType= NodeType.Obstacle ;
-        }
-
+            {
+                    Matrix[(int)v.x][(int)v.y][(int)v.z].nodeType= NodeType.Obstacle ;
+            }
+        
+        ///To Show Actual Grid////
+//        for (Vector v :obsLocations)
+//                {
+//                  Matrix[(int)v.x][(int)v.y][(int)v.z].nodeType= NodeType.Obstacle ;
+//                }
+        
         for (Node n: pathDetailed)
         {
-                Matrix[(int)n.x][(int)n.y][(int)n.z].nodeType = NodeType.Obstacle ;
+                Matrix[(int)n.x][(int)n.y][(int)n.z].nodeType = NodeType.Path ;
         }
 
                 for (int k=1 ;k<(int)dimensions[2] ;k++ )
                 {
+                    System.out.println("Metal " + k);
                     for(int j=0 ;j<(int)dimensions[1];j++)
                     {
                         for (int i=0 ;i<(int)dimensions[0];i++)
                         {
-                            if (Matrix[i][j][k].nodeType == NodeType.Obstacle)
-                                System.out.print("O ");
+                            if (Matrix[i][j][k].nodeType == NodeType.Path)
+                                {
+                                    System.out.print("R ");
+                                    //Matrix[i][j][k].nodeType = NodeType.Obstacle ;
+                                }
                             else
                                 if (Matrix[i][j][k].nodeType == NodeType.Pin)
-                                System.out.print("P ");
+                                {
+                                    System.out.print("P ");
+                                    //Matrix[i][j][k].nodeType = NodeType.Obstacle ;
+                                }
                             else
-                                    System.out.print("- ");
+                                if (Matrix[i][j][k].nodeType == NodeType.Obstacle)
+                                    {
+                                        System.out.print("O ");
+                                        Matrix[i][j][k].nodeType = NodeType.Empty ;
+                                    }
+                                  
+                            else
+                                System.out.print("- ");
                                     
                         }
                         System.out.println(" ");
                     }
-                    System.out.println("Metal" + k);
-
+                    
                 }
-
+            
     }
     
 }
