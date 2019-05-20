@@ -6,8 +6,10 @@ import java.util.List;
 public class Net {
     private List<SpecialItem> Special_Net ;
     private List<Item> Net;
+    public String name;
 
-    public Net() {
+    public Net(String name) {
+        this.name = name;
         this.Net = new ArrayList<>();
         this.Special_Net = new ArrayList<>();
     }

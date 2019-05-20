@@ -71,6 +71,8 @@ public class Main extends Application {
         }
         
         Router router = new Router(netsSet, placedMacros, definedMacros, pinLocationsInGrid, tracks, obsLocations);
+        parser.UpdateDEFFile(router.getONLString());
+
 
         dimensions = new int[]{placer.getxSize(), placer.getySize(), placer.getzSize()}; //130 * 65 * 5
         controller = new Controller();

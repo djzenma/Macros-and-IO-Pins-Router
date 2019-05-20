@@ -2,6 +2,7 @@ package Routing;
 
 import Algorithm.Node;
 import Algorithm.Node.NodeType;
+import DEFWriter.OutNetList;
 import GUI.Main;
 import Parser.*;
 import Placement.Placer;
@@ -16,6 +17,8 @@ public class Router {
     private int gboxSize = 5;
     public static int xGridSize;
     public static int yGridSize;
+
+    public OutNetList ONL;
 
 
     private GBox[][][] grids;
@@ -51,6 +54,8 @@ public class Router {
         for( Vector v: obsLocations) {
             this.legalizedObsLocations.add(legalizeVector(v));
         }
+
+        ONL = new OutNetList();
 
         xGridSize = Placer.xSize / gboxSize;
         yGridSize = Placer.ySize / gboxSize;
@@ -89,6 +94,7 @@ public class Router {
     
     private void route() {
          this.nets.forEach((net) -> { //pass by every net
+             ONL.addNet(net.name,net.getNet());
             final boolean[] firstPin = {true};
             targetCoords = null ;
             globalPath = null;
@@ -136,6 +142,13 @@ public class Router {
                 pathDetailed = pathDetailed_Temp ;
                 //if (pathDetailed.size() != 0 && pathDetailed != null)
                     draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
+
+                //for output netlist
+                ArrayList<Vector> ONLPaths = new ArrayList<Vector>();
+                for(Node n: pathDetailed) {
+                    ONLPaths.add(new Vector(n.x, n.y, n.z));
+                }
+                ONL.addPaths(ONLPaths);
             }
             else {    // is second time
                 GUI.Main.firstTimeInDetailedRouting = true;
@@ -148,6 +161,13 @@ public class Router {
                 GUI.Main.firstTimeInDetailedRouting = false;
             }
             detailedNetPaths.addAll(pathDetailed);
+
+            //for output netlist
+            ArrayList<Vector> ONLPaths = new ArrayList<Vector>();
+            for(Node n: pathDetailed) {
+                ONLPaths.add(new Vector(n.x, n.y, n.z));
+            }
+            ONL.addPaths(ONLPaths);
         }
         else {  // is first pin
             pathDetailed = null ;
@@ -366,6 +386,10 @@ public class Router {
                     
                 }
             
+    }
+
+    public String getONLString(){
+        return  ONL.getAsString();
     }
     
 }

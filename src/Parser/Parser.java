@@ -5,10 +5,7 @@
  */
 package Parser;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -294,7 +291,7 @@ public class Parser {
 
         for (int i = 1 ; i < netsBlockArray.length; i++) { //loop at nets
             String[] netBlock = netsBlockArray[i].split("\n"); // split at end lines
-            Net net = new Net();
+            Net net = new Net(netBlock[0]);
             for (int j = 1; j < netBlock.length; j++) { //loop at lines
                 if (!(i==  netsBlockArray.length-1 && j ==  netBlock.length-1) ){
                     String[] netLine = netBlock[j].replaceAll("(\\(|\\))", "").split("\\s");
@@ -319,7 +316,7 @@ public class Parser {
         {
             
           String[] specialnetBlock = specialnetsBlockArray[i].split("\n"); // split at end lines   
-          Net net = new Net();
+          Net net = new Net("SpecialNets");
           List<Rect> routingPath= new ArrayList<>();
           List <Via> viasList= new ArrayList<>() ;
           for (int j=2 ; j< specialnetBlock.length-1;j++) // loop at every line 
@@ -405,6 +402,17 @@ public class Parser {
    
          
          return rtrn ;
+     }
+
+     public void UpdateDEFFile(String NetList){
+        System.out.println(NetList);
+         try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter("/Parser/Resources/out.def"));
+                 writer.write(NetList);
+                 writer.close();
+             } catch (IOException e) {
+                 e.printStackTrace();
+             }
      }
      
 }
