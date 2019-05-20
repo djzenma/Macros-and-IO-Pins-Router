@@ -68,10 +68,10 @@ public class Placer {
         // Calculating the ratio of every metal layer relative to the maximum one
         tracks.forEach((key, track) -> {
             if(track.direction == Track.X) {
-                this.layersRatios.put( key,xMax[0] / track.number);
+                layersRatios.put( key,xMax[0] / track.number);
             }
             else {
-                this.layersRatios.put( key, yMax[0] / track.number);
+                layersRatios.put( key, yMax[0] / track.number);
             }
         });
 

@@ -66,14 +66,14 @@ public class Maze {
      * @throws Exception in case the source is already occupied
      */
     public void setSource(int x, int y, int z) throws Exception {
-        if(this.aStar.isObstacle(new Node(x,y,z)))
-            throw new Exception("Source cell in a node that is already occupied!");
-        else{
+        //if(this.aStar.isObstacle(new Node(x,y,z)))
+          //  throw new Exception("Source cell in a node that is already occupied!");
+        //else{
             this.maze[x][y][z] = SOURCE_CELL;
             this.src = new Node(x, y, z);
             this.src.setObstacle(false);
             this.aStar.setInitialNode(this.src);
-        }
+        //}
     }
 
     /**

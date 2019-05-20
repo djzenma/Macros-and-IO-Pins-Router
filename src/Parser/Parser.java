@@ -74,20 +74,13 @@ public class Parser {
     }
 
     public List<String> getSection(String section , String ext) {
-        List<String> allMatches = new ArrayList<String>();
         String file;
-        Matcher m ;
-
         if (ext.equals(DEF_EXT))
             file = this.defFile;
         else
             file = this.lefFile;
 
-        m = Pattern.compile(section).matcher(file);
-        while (m.find())
-            allMatches.add(m.group());
-
-        return allMatches;
+        return regexMatcher(section, file);
     }
 
     public Hashtable<String, Layer> getLayersTable() {
