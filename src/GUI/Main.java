@@ -60,6 +60,7 @@ public class Main extends Application {
 
         // Initialization
         int[][][] maze = new int[Router.xGridSize][Router.yGridSize][placer.getzSize()];   //130 * 65 * 5 
+
         for (int i = 0; i < Router.xGridSize; i++) {
             for (int j = 0; j < Router.yGridSize; j++) {
                 for (int k = 1; k < placer.getzSize(); k++) { // 1--> 4

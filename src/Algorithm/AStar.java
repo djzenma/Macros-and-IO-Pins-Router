@@ -167,8 +167,7 @@ public class AStar {
      * @param currentNode
      */
     private void addAdjacentNodes(Node currentNode) {
-        if(currentNode.getZ() == 4)
-           // System.out.print(cols);
+       
         if(Router.tracks.get(currentNode.getZ()).direction == Track.X) {
             this.addYZPlane(currentNode);
         }

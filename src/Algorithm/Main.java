@@ -56,7 +56,7 @@ public class Main {
         // Print if the path was found
         if(!invalidCells && path.size() != 0) {
             System.out.println("Path Found!");
-            GUI.Main.maze.printPath(path);
+            //GUI.Main.maze.printPath(path);
             //GUI.Main.controller.setMaze(GUI.Main.maze.getMaze(), dimensions[0], dimensions[1], dimensions[2]);   // Pass the new maze to the GUI
             // Calculate Cost Function
             int cellsCount = path.size();
