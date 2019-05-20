@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class Node {
 
-    public enum NodeType  {Empty, Obstacle, Pin};
+    public enum NodeType  {Empty, Obstacle, Pin };
     public NodeType nodeType;
     private int g;
     private int f;

@@ -1,6 +1,7 @@
 package Routing;
 
 import Algorithm.Node;
+import Algorithm.Node.NodeType;
 import Parser.*;
 import Placement.Placer;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class Router {
 
 
     private GBox[][][] grids;
+    private Node [][][] Matrix ;
 
     private HashSet<Net> nets;       // Set of all the nets blocks, each block contains the pins that need to be connected
     private Hashtable<String, Macro> placedMacros;
@@ -60,6 +62,15 @@ public class Router {
                 }
             }
         }
+        
+        Matrix = new Node[Placer.xSize ][Placer.ySize ][Placer.zSize];;
+        for (int i = 0; i < Placer.xSize; i++) {
+            for (int j = 0; j < Placer.ySize; j++) {
+                for (int k = 1; k < Placer.zSize; k++) { // 1 --> 4
+                    Matrix[i][j][k] = new Node(i,j,k);
+                }
+            }
+        }
 
         detailedPathsList = new ArrayList<>();
         placeObs();        
@@ -80,11 +91,9 @@ public class Router {
             targetCoords = null ;
             globalPath = null;
             pathDetailed = null;
-
             net.getNet().forEach((item)-> { // pass by ever item in net 
                 // Get the macro's base location from the placed Macros Table
                 Macro macro = this.placedMacros.get(item.compName);
-
                 // Look up the pin item in its corresponding Macro from the defined Macros table
                 Iterator<Pin> iterator = this.definedMacros.get(macro.name).pins.iterator();
                 iterator.forEachRemaining(pinIter -> {
@@ -118,18 +127,20 @@ public class Router {
                     tested.add(target);
                     detailedFirst = new int[] {target.x, target.y, target.z} ;
                     pathDetailed_Temp = Algorithm.Main.main(dimensions, sourceCoords , detailedFirst, detailedObs);
-
-                } while(pathDetailed.size()== 0 && tested.size() != pathDetailed.size());
-
+                } while(pathDetailed_Temp.size()== 0 && tested.size() != pathDetailed.size());
+                if (pathDetailed_Temp.size() != 0)
                 pathDetailed = pathDetailed_Temp ;
+                draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
             }
             else {    // is second time
                 pathDetailed = Algorithm.Main.main(dimensions, sourceCoords, detailedFirst, detailedObs);
                 assert pathDetailed.size() == 0 : "Detailed path not found for the first 2 pins in the current net block";
+                draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
             }
             detailedNetPaths.addAll(pathDetailed);
         }
         else {  // is first pin
+            pathDetailed = null ;
             detailedNetPaths = new ArrayList<>();
             detailedFirst = new int[]{(int) pinLocation.x, (int) pinLocation.y, (int) pinLocation.z};
         }
@@ -176,6 +187,7 @@ public class Router {
         Vector legalizedOffset = legalizeVector(offset);
         if(firstPin) {      // 1st time
             globalNetPaths = new ArrayList<>();
+            globalPath = null;
             this.grids[(int) legalizedOffset.x][(int) legalizedOffset.y][(int) offset.z].isTarget = true;
             targetCoords = new int[]{(int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
         }
@@ -192,7 +204,7 @@ public class Router {
                     pathTemp = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
                     tested.add(target);
                 } while (pathTemp.size() == 0 && tested.size() != globalPath.size());
-                
+                if (pathTemp.size() != 0)
                 globalPath = pathTemp ;
             }
             else {  // 2nd time
@@ -271,6 +283,42 @@ public class Router {
         }
         
        return minNode;     
+    }
+    public void draw (int [] detailedFirst, int [] sourceCoords ,  List <Vector> detailedObs,int []dimensions , List <Node> pathDetailed )
+    {
+        Matrix[(int)sourceCoords[0]][(int)sourceCoords[1]][(int)sourceCoords[2]].nodeType= NodeType.Pin ;
+        Matrix[(int)detailedFirst[0]][(int)detailedFirst[1]][(int)detailedFirst[2]].nodeType= NodeType.Pin ;
+        for (Vector v : detailedObs)
+        {
+                Matrix[(int)v.x][(int)v.y][(int)v.z].nodeType= NodeType.Obstacle ;
+        }
+
+        for (Node n: pathDetailed)
+        {
+                Matrix[(int)n.x][(int)n.y][(int)n.z].nodeType = NodeType.Obstacle ;
+        }
+
+                for (int k=1 ;k<(int)dimensions[2] ;k++ )
+                {
+                    for(int j=0 ;j<(int)dimensions[1];j++)
+                    {
+                        for (int i=0 ;i<(int)dimensions[0];i++)
+                        {
+                            if (Matrix[i][j][k].nodeType == NodeType.Obstacle)
+                                System.out.print("O ");
+                            else
+                                if (Matrix[i][j][k].nodeType == NodeType.Pin)
+                                System.out.print("P ");
+                            else
+                                    System.out.print("- ");
+                                    
+                        }
+                        System.out.println(" ");
+                    }
+                    System.out.println("Metal" + k);
+
+                }
+
     }
     
 }
