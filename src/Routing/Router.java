@@ -2,6 +2,7 @@ package Routing;
 
 import Algorithm.Node;
 import Algorithm.Node.NodeType;
+import GUI.Main;
 import Parser.*;
 import Placement.Placer;
 import java.util.ArrayList;
@@ -130,12 +131,18 @@ public class Router {
                 } while(pathDetailed_Temp.size()== 0 && tested.size() != pathDetailed.size());
                 if (pathDetailed_Temp.size() != 0)
                 pathDetailed = pathDetailed_Temp ;
-                draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
+                if (pathDetailed.size() != 0 && pathDetailed != null)
+                    draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
             }
             else {    // is second time
+                GUI.Main.firstTimeInDetailedRouting = true;
                 pathDetailed = Algorithm.Main.main(dimensions, sourceCoords, detailedFirst, detailedObs);
-                assert pathDetailed.size() == 0 : "Detailed path not found for the first 2 pins in the current net block";
-                draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
+                if (pathDetailed.size() != 0 && pathDetailed != null)
+                    draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
+                
+                if(pathDetailed.size() == 0 )
+                    System.err.println("Detailed path not found for the first 2 pins in the current net block");
+                GUI.Main.firstTimeInDetailedRouting = false;
             }
             detailedNetPaths.addAll(pathDetailed);
         }
@@ -192,6 +199,7 @@ public class Router {
             targetCoords = new int[]{(int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
         }
         else {
+            Main.globalRouting = true;
             this.grids[(int) (legalizedOffset.x) ][(int) (legalizedOffset.y)][(int) offset.z].isSource = true;
             int[] dimensions = new int[]{xGridSize, yGridSize, Placer.zSize };
             int[] sourceCoords = new int[]{ (int) legalizedOffset.x, (int) legalizedOffset.y, (int) offset.z};
@@ -208,12 +216,16 @@ public class Router {
                 globalPath = pathTemp ;
             }
             else {  // 2nd time
+                Main.firstTimeInglobalRouting = true;
                 globalPath = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
-                assert globalPath.size() == 0 : "Global path not found for the first 2 pins in the current net block";
+                if(globalPath.size() == 0)
+                    System.err.println("Global path not found for the first 2 pins in the current net block");
+                Main.firstTimeInglobalRouting = false;
             }
             globalNetPaths.addAll(globalPath);
 
             setPath (globalPath);
+            Main.globalRouting = false;
         }
     }
 

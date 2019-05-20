@@ -34,6 +34,7 @@ public class Main extends Application {
 
     public static int[] dimensions;
     public static boolean firstTimeInDetailedRouting = true;
+    public static boolean firstTimeInglobalRouting = true;
     public static boolean globalRouting = true;
     
     public static boolean exit = false;

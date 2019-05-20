@@ -15,7 +15,6 @@ import java.util.List;
 public class Main {
 
     /**
-     * @param controller: Interface between the GUI Main class and this Algorithm Main
      */
     public static List<Node> main(int dimensions[], int[] sourceCoords, int[] targetCoords, List<Vector> obsLocations) {
 
@@ -29,7 +28,7 @@ public class Main {
             GUI.Main.exit = true;
 
         // If first time, initialize the maze grid
-        if(GUI.Main.firstTimeInDetailedRouting || GUI.Main.globalRouting) {
+        if(GUI.Main.firstTimeInDetailedRouting || GUI.Main.firstTimeInglobalRouting) {
             GUI.Main.maze = new Maze(dimensions[0], dimensions[1], dimensions[2], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), 
                     new Node(targetCoords[0], targetCoords[1], targetCoords[2]),
                     obsLocations);
@@ -42,7 +41,9 @@ public class Main {
                 GUI.Main.maze.setSource(sourceCoords[0], sourceCoords[1], sourceCoords[2]);
                 GUI.Main.maze.setTarget(targetCoords[0], targetCoords[1], targetCoords[2]);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                e.printStackTrace();
+                System.err.println("source: x: " + sourceCoords[0] + " y: " + sourceCoords[1] + " z: " + sourceCoords[2]);
+                System.err.println("dimensions: x: " + dimensions[0] + " y: " + dimensions[1] + " z: " + dimensions[2]);
                 invalidCells = true;
             }
         }
