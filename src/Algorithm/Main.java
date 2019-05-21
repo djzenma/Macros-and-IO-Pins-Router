@@ -17,8 +17,6 @@ public class Main {
     /**
      */
     public static List<Node> main(int dimensions[], int[] sourceCoords, int[] targetCoords, List<Vector> obsLocations) {
-
-        String cmd;
         List<Node> path = new ArrayList<>();
         boolean invalidCells = false;
 
@@ -32,8 +30,6 @@ public class Main {
             GUI.Main.maze = new Maze(dimensions[0], dimensions[1], dimensions[2], new Node(sourceCoords[0], sourceCoords[1], sourceCoords[2]), 
                     new Node(targetCoords[0], targetCoords[1], targetCoords[2]),
                     obsLocations);
-            if(GUI.Main.firstTimeInDetailedRouting)
-                GUI.Main.firstTimeInDetailedRouting = false;
         }
         // Else, set the new source and target and check if valid
         else {

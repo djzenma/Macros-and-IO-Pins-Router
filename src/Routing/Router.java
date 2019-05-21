@@ -52,7 +52,8 @@ public class Router {
         Router.tracks = tracks;
         this.legalizedObsLocations = new ArrayList<>();
         for( Vector v: obsLocations) {
-            this.legalizedObsLocations.add(legalizeVector(v));
+            if(!this.legalizedObsLocations.contains(legalizeVector(v)))
+                this.legalizedObsLocations.add(legalizeVector(v));
         }
 
         ONL = new OutNetList();
@@ -109,7 +110,7 @@ public class Router {
                         Vector pinLocation = this.pinLocations.get(item);
                         globallyRoute(pinLocation, firstPin[0]); //set global globalPath if not first 
                         if (!firstPin[0])
-                        printGbox ();
+                            printGbox ();
                         detailedRoute(pinLocation, firstPin[0]);
                     }
                 });
@@ -274,25 +275,25 @@ public class Router {
             {
                 for (int i=0 ;i< xGridSize ;i++ )
                         {
-                            if (grids[i][j][z].isSource == true)
+                            if (grids[i][j][z].isSource)
                             {
                                 System.out.print("S ");
                                 grids[i][j][z].isSource = false;
                             }
                             else 
-                                if (grids[i][j][z].isTarget == true)
+                                if (grids[i][j][z].isTarget)
                                 {
                                     System.out.print("T ");
                                     grids[i][j][z].isTarget = false;
                                 }
                             else
-                               if (grids[i][j][z].isPath == true)
+                               if (grids[i][j][z].isPath)
                                {
                                    System.out.print("P ");   
                                    grids[i][j][z].isPath = false ;
                                }  
                             else
-                                if (grids[i][j][z].isObs == true)
+                                if (grids[i][j][z].isObs)
                                    System.out.print("O ");   
                             else
                                 System.out.print("- ");
@@ -331,6 +332,9 @@ public class Router {
         
        return minNode;     
     }
+
+
+
     public void draw (int [] detailedFirst, int [] sourceCoords ,  List <Vector> detailedObs,int []dimensions , List <Node> pathDetailed )
     {
         Matrix[(int)sourceCoords[0]][(int)sourceCoords[1]][(int)sourceCoords[2]].nodeType= NodeType.Pin ;
