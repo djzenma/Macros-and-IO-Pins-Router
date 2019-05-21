@@ -28,14 +28,21 @@ public class OutPath {
     }
 
     public String getAsString(Integer xRatio, Integer yRatio){
+
         x = x *xRatio;
         y = y * yRatio;
+
+        String s ="( " + x.toString() + " " + y.toString() + " ) ";
         if(dirc == 1){
             extension = extension * xRatio;
+            x= x + extension;
         }else if(dirc ==2){
             extension = extension * yRatio;
+            y = y+extension;
         }
-        return "( " + x.toString() + " " + y.toString() + " " + extension.toString() + " ) ";
+
+
+        return s +"( " + x.toString() + " " + y.toString() + " ) ";
     }
 
 }

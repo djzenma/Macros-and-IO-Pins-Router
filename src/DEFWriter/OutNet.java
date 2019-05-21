@@ -14,6 +14,7 @@ public class OutNet {
     public ArrayList<OutPath> paths;
     public List<Item> pins;
     public ArrayList<Layer> layers;
+    public static Integer m = 0;
 
     public OutNet(String name, List<Net.Item> pins){
         paths =new ArrayList<>();
@@ -115,7 +116,7 @@ public class OutNet {
 
         for (Integer i = 0; i < pins.size(); i++){
             if(i == pins.size() - 1){
-                rtn = rtn + "( " + pins.get(i).compName + " " + pins.get(i).pinName + " ) ;\n";
+                rtn = rtn + "( " + pins.get(i).compName + " " + pins.get(i).pinName + " ) \n";
             }else{
                 rtn = rtn + "( " + pins.get(i).compName + " " + pins.get(i).pinName + " ) \n";
             }
@@ -150,8 +151,10 @@ public class OutNet {
                     if(!justSeen){
                         if(firstTime){
                             if(firstFirstTime){
-                                rtn = rtn + "\tROUTED\n";
+                                rtn = rtn + "+ ROUTED ";
                                 firstFirstTime = false;
+                            }else{
+                                rtn = rtn + "  NEW ";
                             }
 
                             rtn = rtn + "metal" + k.toString() + " ";
@@ -159,16 +162,18 @@ public class OutNet {
 
                         }
                         parsed.add(new OutPath(paths.get(i).x, paths.get(i).y,paths.get(i).z, paths.get(i).extension, paths.get(i).dirc ));
-                        rtn = rtn + paths.get(i).getAsString(xRatio, yRatio);
+                        rtn = rtn + paths.get(i).getA   sString(xRatio, yRatio) ;
                     }
 
                 }
             }
             if(!firstTime){
-                rtn = rtn +"\n";
+                rtn = rtn + "\n";
+                //rtn = rtn  + "M" + m.toString() + "\n";
+                //m++;
             }
         }
 
-        return rtn + "\n";
+        return rtn.substring(0, rtn.length() -1) + ";\n";
     }
 }
