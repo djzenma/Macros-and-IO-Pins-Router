@@ -135,6 +135,8 @@ public class Node {
         this.isObstacle = isBlock;
         if(isBlock)
             this.nodeType = NodeType.Obstacle;
+        else
+            this.nodeType = NodeType.Empty;
     }
 
     public int getX() {

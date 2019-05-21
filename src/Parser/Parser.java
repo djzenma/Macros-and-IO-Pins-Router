@@ -142,7 +142,7 @@ public class Parser {
     /*
      *  @return Hashtable with all the Library MACROS defined in the LEF File
      */
-    public Hashtable getMacrosDefinitions(Hashtable<String, Layer> layersSet) {
+    public Hashtable<String, Macro> getMacrosDefinitions(Hashtable<String, Layer> layersSet) {
         Hashtable <String, Macro> macrosDefinitions = new Hashtable<>();
 
         List<String> lefMacros = this.getSection(MACRO_REGEX, Parser.LEF_EXT);  // All Macros

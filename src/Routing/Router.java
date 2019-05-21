@@ -52,7 +52,8 @@ public class Router {
         Router.tracks = tracks;
         this.legalizedObsLocations = new ArrayList<>();
         for( Vector v: obsLocations) {
-            this.legalizedObsLocations.add(legalizeVector(v));
+            if(!this.legalizedObsLocations.contains(legalizeVector(v)))
+                this.legalizedObsLocations.add(legalizeVector(v));
         }
 
         ONL = new OutNetList();
@@ -108,8 +109,8 @@ public class Router {
                     if (pinIter.name.equals(item.pinName)) {
                         Vector pinLocation = this.pinLocations.get(item);
                         globallyRoute(pinLocation, firstPin[0]); //set global globalPath if not first 
-                        if (!firstPin[0])
-                        printGbox ();
+                        //if (!firstPin[0])
+                           // printGbox ();
                         detailedRoute(pinLocation, firstPin[0]);
                     }
                 });
@@ -141,7 +142,7 @@ public class Router {
                 if (pathDetailed_Temp.size() != 0)
                 pathDetailed = pathDetailed_Temp ;
                 //if (pathDetailed.size() != 0 && pathDetailed != null)
-                    draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
+                    //draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
 
                 //for output netlist
                 ArrayList<Vector> ONLPaths = new ArrayList<Vector>();
@@ -154,10 +155,10 @@ public class Router {
                 GUI.Main.firstTimeInDetailedRouting = true;
                 pathDetailed = Algorithm.Main.main(dimensions, sourceCoords, detailedFirst, detailedObs);
                 //if (pathDetailed.size() != 0 && pathDetailed != null)
-                    draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
+                    //draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
                 
-                if(pathDetailed.size() == 0 )
-                    System.err.println("Detailed path not found for the first 2 pins in the current net block");
+                //if(pathDetailed.size() == 0 )
+                    //System.err.println("Detailed path not found for the first 2 pins in the current net block");
                 GUI.Main.firstTimeInDetailedRouting = false;
             }
             detailedNetPaths.addAll(pathDetailed);
@@ -241,8 +242,8 @@ public class Router {
             else {  // 2nd time
                 Main.firstTimeInglobalRouting = true;
                 globalPath = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
-                if(globalPath.size() == 0)
-                    System.err.println("Global path not found for the first 2 pins in the current net block");
+                //if(globalPath.size() == 0)
+                   // System.err.println("Global path not found for the first 2 pins in the current net block");
                 Main.firstTimeInglobalRouting = false;
             }
             globalNetPaths.addAll(globalPath);
@@ -274,25 +275,25 @@ public class Router {
             {
                 for (int i=0 ;i< xGridSize ;i++ )
                         {
-                            if (grids[i][j][z].isSource == true)
+                            if (grids[i][j][z].isSource)
                             {
                                 System.out.print("S ");
                                 grids[i][j][z].isSource = false;
                             }
                             else 
-                                if (grids[i][j][z].isTarget == true)
+                                if (grids[i][j][z].isTarget)
                                 {
                                     System.out.print("T ");
                                     grids[i][j][z].isTarget = false;
                                 }
                             else
-                               if (grids[i][j][z].isPath == true)
+                               if (grids[i][j][z].isPath)
                                {
                                    System.out.print("P ");   
                                    grids[i][j][z].isPath = false ;
                                }  
                             else
-                                if (grids[i][j][z].isObs == true)
+                                if (grids[i][j][z].isObs)
                                    System.out.print("O ");   
                             else
                                 System.out.print("- ");
@@ -331,6 +332,9 @@ public class Router {
         
        return minNode;     
     }
+
+
+
     public void draw (int [] detailedFirst, int [] sourceCoords ,  List <Vector> detailedObs,int []dimensions , List <Node> pathDetailed )
     {
         Matrix[(int)sourceCoords[0]][(int)sourceCoords[1]][(int)sourceCoords[2]].nodeType= NodeType.Pin ;

@@ -168,7 +168,7 @@ public class AStar {
      */
     private void addAdjacentNodes(Node currentNode) {
        
-        if(Router.tracks.get(currentNode.getZ()).direction == Track.X) {
+        if(Router.tracks.get(currentNode.getZ()).direction == Track.Y) {
             this.addYZPlane(currentNode);
         }
         else {  // is a vertical Metal

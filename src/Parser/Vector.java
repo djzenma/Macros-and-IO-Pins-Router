@@ -14,4 +14,15 @@ public class Vector {
         this.x = x ;
         this.y = y ;
     }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Vector v = (Vector) obj;
+        return (v.x == this.x && v.y == this.y && v.z == this.z);
+    }
 }
