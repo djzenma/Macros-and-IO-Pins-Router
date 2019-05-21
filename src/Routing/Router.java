@@ -109,8 +109,8 @@ public class Router {
                     if (pinIter.name.equals(item.pinName)) {
                         Vector pinLocation = this.pinLocations.get(item);
                         globallyRoute(pinLocation, firstPin[0]); //set global globalPath if not first 
-                        if (!firstPin[0])
-                            printGbox ();
+                        //if (!firstPin[0])
+                           // printGbox ();
                         detailedRoute(pinLocation, firstPin[0]);
                     }
                 });
@@ -142,7 +142,7 @@ public class Router {
                 if (pathDetailed_Temp.size() != 0)
                 pathDetailed = pathDetailed_Temp ;
                 //if (pathDetailed.size() != 0 && pathDetailed != null)
-                    draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
+                    //draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
 
                 //for output netlist
                 ArrayList<Vector> ONLPaths = new ArrayList<Vector>();
@@ -155,10 +155,10 @@ public class Router {
                 GUI.Main.firstTimeInDetailedRouting = true;
                 pathDetailed = Algorithm.Main.main(dimensions, sourceCoords, detailedFirst, detailedObs);
                 //if (pathDetailed.size() != 0 && pathDetailed != null)
-                    draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
+                    //draw (detailedFirst , sourceCoords , detailedObs ,dimensions ,pathDetailed );
                 
-                if(pathDetailed.size() == 0 )
-                    System.err.println("Detailed path not found for the first 2 pins in the current net block");
+                //if(pathDetailed.size() == 0 )
+                    //System.err.println("Detailed path not found for the first 2 pins in the current net block");
                 GUI.Main.firstTimeInDetailedRouting = false;
             }
             detailedNetPaths.addAll(pathDetailed);
@@ -242,8 +242,8 @@ public class Router {
             else {  // 2nd time
                 Main.firstTimeInglobalRouting = true;
                 globalPath = Algorithm.Main.main(dimensions, sourceCoords, targetCoords, legalizedObsLocations);
-                if(globalPath.size() == 0)
-                    System.err.println("Global path not found for the first 2 pins in the current net block");
+                //if(globalPath.size() == 0)
+                   // System.err.println("Global path not found for the first 2 pins in the current net block");
                 Main.firstTimeInglobalRouting = false;
             }
             globalNetPaths.addAll(globalPath);
