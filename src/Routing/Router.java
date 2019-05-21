@@ -388,8 +388,8 @@ public class Router {
             
     }
 
-    public String getONLString(){
-        return  ONL.getAsString();
+    public String getONLString(Integer xRatio, Integer yRatio){
+        return  ONL.getAsString(xRatio, yRatio);
     }
     
 }

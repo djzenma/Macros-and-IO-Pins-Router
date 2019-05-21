@@ -28,10 +28,12 @@ public class Parser {
     private final String  MACRO_REGEX = "MACRO.+(\\n.+)+";
     static public final String PINS = "PINS", COMPONENTS = "COMPONENTS", NETS = "NETS", SPECNETS = "SPECIALNETS";
 
+    public String absolutePath;
+
 
     public Parser() {
         Path path = Paths.get(".");        // Gets the project's absolute path
-        String absolutePath = path.toAbsolutePath().toString();
+        absolutePath = path.toAbsolutePath().toString();
         absolutePath = absolutePath.substring(0, absolutePath.length() -1) + "/src";
         readFile(absolutePath + "/Parser/Resources/osu035.lef", Parser.LEF_EXT);
         readFile(absolutePath + "/Parser/Resources/arbiter_unroute.def", Parser.DEF_EXT);
@@ -405,10 +407,13 @@ public class Parser {
      }
 
      public void UpdateDEFFile(String NetList){
-        System.out.println(NetList);
+        List<String> start = regexMatcher("(.*\\n)+\\nNETS", this.defFile);
+         List<String> end = regexMatcher("\\nEND NETS(.*\\n)+", this.defFile);
+         String file = start.get(0) + " " + NetList + end.get(0);
+        System.out.println(file);
          try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter("/Parser/Resources/out.def"));
-                 writer.write(NetList);
+                BufferedWriter writer = new BufferedWriter(new FileWriter(absolutePath + "/Parser/Resources/out.def"));
+                 writer.write(file);
                  writer.close();
              } catch (IOException e) {
                  e.printStackTrace();

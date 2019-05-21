@@ -29,7 +29,7 @@ public class OutNet {
 
             int start = 0;
             int direction = 0;
-            int index = 1;
+            int index = 0;
             Boolean lastTime = false;
 
             while (index <= vecs.size()){
@@ -45,7 +45,7 @@ public class OutNet {
 
                 if(direction == 0){
                     if(lastTime){
-                        paths.add(new OutPath((int)vecs.get(index).x, (int)vecs.get(index).y, (int)vecs.get(index).z, 0, 0));
+                        paths.add(new OutPath((int)vecs.get(start).x, (int)vecs.get(start).y, (int)vecs.get(start).z, 0, 0));
                         lastTime = false;
                         break;
                     }
@@ -61,9 +61,10 @@ public class OutNet {
                     }
                 }else if (direction == 1){
                     if(vecs.get(index).y != vecs.get(start).y | vecs.get(index).z != vecs.get(start).z |lastTime ){
-                        paths.add(new OutPath((int)vecs.get(index).x, (int)vecs.get(index).y, (int)vecs.get(index).z, (int)(vecs.get(index).x - vecs.get(start).x), direction));
+                        paths.add(new OutPath((int)vecs.get(start).x, (int)vecs.get(start).y, (int)vecs.get(start).z, (int)(vecs.get(index).x - vecs.get(start).x), direction));
                         start = index;
-                        index = index + 1;
+                        //index = index + 1;
+                        direction = 0;
                         if (lastTime){
                             lastTime = false;
                             break;
@@ -72,9 +73,10 @@ public class OutNet {
                     }
                 }else if (direction == 2){
                     if(vecs.get(index).x != vecs.get(start).x | vecs.get(index).z != vecs.get(start).z | lastTime){
-                        paths.add(new OutPath((int)vecs.get(index).x, (int)vecs.get(index).y, (int)vecs.get(index).z, (int)(vecs.get(index).y - vecs.get(start).y), direction));
+                        paths.add(new OutPath((int)vecs.get(start).x, (int)vecs.get(start).y, (int)vecs.get(start).z, (int)(vecs.get(index).y - vecs.get(start).y), direction));
                         start = index;
-                        index = index + 1;
+                        //index = index + 1;
+                        direction = 0;
                         if (lastTime){
                             lastTime = false;
                             break;
@@ -84,9 +86,10 @@ public class OutNet {
                 }else if(direction == 3){
                     // TODO: This VIA
                     if(vecs.get(index).x != vecs.get(start).x | vecs.get(index).y != vecs.get(start).y | lastTime){
-                        paths.add(new OutPath("VIA", (int)vecs.get(index).x, (int)vecs.get(index).y, (int)vecs.get(index).z, (int)(vecs.get(index).z - vecs.get(start).z)));
+                        paths.add(new OutPath("VIA", (int)vecs.get(start).x, (int)vecs.get(start).y, (int)vecs.get(start).z, (int)(vecs.get(index).z - vecs.get(start).z)));
                         start = index;
-                        index = index + 1;
+                        //index = index + 1;
+                        direction = 0;
                         if (lastTime){
                             lastTime = false;
                             break;
@@ -108,14 +111,14 @@ public class OutNet {
         addPath(vecs);
     }
 */
-    public String getAsString(){
+    public String getAsString(Integer xRatio, Integer yRatio){
         String rtn = "- " + name + " \n";
 
         for (Integer i = 0; i < pins.size(); i++){
             rtn = rtn + "( " + pins.get(i).compName + " " + pins.get(i).pinName + " ) \n";
         }
 
-        rtn = rtn + "\tROUTED\n";
+
 
         Integer maxZ= 0;
         for (Integer i =0; i < paths.size(); i++){
@@ -124,15 +127,35 @@ public class OutNet {
             }
         }
 
+        ArrayList<OutPath> parsed = new ArrayList<>();
+
+
+        boolean firstFirstTime = true;
         for (Integer k =0; k <=maxZ; k++){
             boolean firstTime = true;
             for (int i =0; i < paths.size(); i++){
-                if (!paths.get(i).isVIA && paths.get(i).z == k){
+                if ((!paths.get(i).isVIA) && paths.get(i).z == k){
+                    boolean justSeen = false;
+                    for (int j = 0;j<parsed.size(); j++){
+                        if(parsed.get(j).x ==  paths.get(i).x && parsed.get(j).y ==  paths.get(i).y && parsed.get(j).extension ==  paths.get(i).extension){
+                            justSeen = true;
+                        }
+                    }
+                    if(justSeen){
+                        continue;
+                    }
                     if(firstTime){
+                        if(firstFirstTime){
+                            rtn = rtn + "\tROUTED\n";
+                            firstFirstTime = false;
+                        }
+
                         rtn = rtn + "metal" + k.toString() + " ";
                         firstTime = false;
+
                     }
-                    rtn = rtn +paths.get(i).getAsString();
+                    parsed.add(paths.get(i));
+                    rtn = rtn +paths.get(i).getAsString(xRatio, yRatio);
                 }
             }
             if(!firstTime){

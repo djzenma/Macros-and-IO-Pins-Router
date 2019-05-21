@@ -27,7 +27,14 @@ public class OutPath {
         this.isVIA = true;
     }
 
-    public String getAsString(){
+    public String getAsString(Integer xRatio, Integer yRatio){
+        x = x *xRatio;
+        y = y * yRatio;
+        if(dirc == 1){
+            extension = extension * xRatio;
+        }else if(dirc ==2){
+            extension = extension * yRatio;
+        }
         return "( " + x.toString() + " " + y.toString() + " " + extension.toString() + " ) ";
     }
 

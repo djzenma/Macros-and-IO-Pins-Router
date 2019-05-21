@@ -39,15 +39,17 @@ public class OutNetList {
         Nets.set(currentSize, ON);
     }
 
-    public String getAsString(){
+    public String getAsString(Integer xRatio, Integer yRatio){
         Integer size = Nets.size();
-        String rtn = "NETS " + size.toString() + " ; \n";
+        String rtn = "NETS";
+        rtn = size.toString() + " ; \n";
 
         for (int i = 0; i < this.Nets.size(); i++){
-            rtn = rtn + Nets.get(i).getAsString();
+            rtn = rtn + Nets.get(i).getAsString(xRatio,yRatio);
         }
 
-        return rtn + "END NETS \n";
+        //rtn = rtn + "END NETS \n"
+        return rtn;
     }
 
 }
