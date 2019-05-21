@@ -114,7 +114,7 @@ public class OutNet {
         String rtn = "- " + name + " \n";
 
         for (Integer i = 0; i < pins.size(); i++){
-            rtn = rtn + "( " + pins.get(i).compName + " " + pins.get(i).pinName + " ) \n";
+            rtn = rtn + "( " + pins.get(i).compName + " " + pins.get(i).pinName + " ) ;\n";
         }
 
 
