@@ -126,35 +126,37 @@ public class OutNet {
             }
         }
 
-        ArrayList<OutPath> parsed = new ArrayList<>();
-
 
         boolean firstFirstTime = true;
         for (Integer k =0; k <=maxZ; k++){
+
+            ArrayList<OutPath> parsed = new ArrayList<>();
             boolean firstTime = true;
-            for (int i =0; i < paths.size(); i++){
-                if ((!paths.get(i).isVIA) && paths.get(i).z == k){
+            for (Integer i =0; i < paths.size(); i++){
+                if ((!paths.get(i).isVIA) & (paths.get(i).z == k)){
                     boolean justSeen = false;
+
                     for (int j = 0;j<parsed.size(); j++){
-                        if(parsed.get(j).x ==  paths.get(i).x && parsed.get(j).y ==  paths.get(i).y && parsed.get(j).extension ==  paths.get(i).extension){
+                        if((parsed.get(j).x.intValue() ==  paths.get(i).x.intValue()) && (parsed.get(j).y.intValue() ==  paths.get(i).y.intValue()) && (parsed.get(j).extension.intValue() ==  paths.get(i).extension.intValue()) ){
                             justSeen = true;
                         }
                     }
-                    if(justSeen){
-                        continue;
-                    }
-                    if(firstTime){
-                        if(firstFirstTime){
-                            rtn = rtn + "\tROUTED\n";
-                            firstFirstTime = false;
+
+                    if(!justSeen){
+                        if(firstTime){
+                            if(firstFirstTime){
+                                rtn = rtn + "\tROUTED\n";
+                                firstFirstTime = false;
+                            }
+
+                            rtn = rtn + "metal" + k.toString() + " ";
+                            firstTime = false;
+
                         }
-
-                        rtn = rtn + "metal" + k.toString() + " ";
-                        firstTime = false;
-
+                        parsed.add(new OutPath(paths.get(i).x, paths.get(i).y,paths.get(i).z, paths.get(i).extension, paths.get(i).dirc ));
+                        rtn = rtn + paths.get(i).getAsString(xRatio, yRatio);
                     }
-                    parsed.add(paths.get(i));
-                    rtn = rtn +paths.get(i).getAsString(xRatio, yRatio);
+
                 }
             }
             if(!firstTime){
